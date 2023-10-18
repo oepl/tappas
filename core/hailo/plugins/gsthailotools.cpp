@@ -15,6 +15,7 @@
 #include "cropping/gsthailoaggregator.hpp"
 #include "cropping/gsthailocropper.hpp"
 #include "overlay/gsthailooverlay.hpp"
+#include "preprocess/gstoeplpreprocess.hpp"
 #include "gst_hailo_meta.hpp"
 #include "gst_hailo_cropping_meta.hpp"
 #include "gst_hailo_stream_meta.hpp"
@@ -36,6 +37,7 @@
 static gboolean
 plugin_init(GstPlugin *plugin)
 {
+    gst_element_register(plugin, "oeplpreprocess", GST_RANK_PRIMARY, GST_TYPE_OEPL_PREPROCESS);
     gst_element_register(plugin, "hailooverlay", GST_RANK_PRIMARY, GST_TYPE_HAILO_OVERLAY);
     gst_element_register(plugin, "hailofilter", GST_RANK_PRIMARY, GST_TYPE_HAILO_FILTER);
     gst_element_register(plugin, "hailocounter", GST_RANK_PRIMARY, GST_TYPE_HAILO_COUNTER);

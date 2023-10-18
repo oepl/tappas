@@ -30,6 +30,7 @@ plugin_sources = [
     'common/image.cpp',
     'overlay/overlay.cpp',
     'overlay/gsthailooverlay.cpp',
+    'preprocess/gstoeplpreprocess.cpp',
     'cropping/gsthailobasecropper.cpp',
     'cropping/gsthailocropper.cpp',
     'cropping/gsthailoaggregator.cpp',
