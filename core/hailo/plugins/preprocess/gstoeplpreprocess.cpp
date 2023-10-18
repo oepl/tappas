@@ -256,9 +256,9 @@ gst_oeplpreprocess_transform_ip(GstBaseTransform *trans,
 		double stdDeviation_contrast = (114 * scalarSdv_contrast[0] + 587 * scalarSdv_contrast[1] + 299 * scalarSdv_contrast[2]) / 1000.0f;
 
 		// Compute new multiplier
-		double measuredContrast = (5 * (double)stdDeviation_contrast / maxIntensity); //assumption: optimium contrast when 5sigma=255
+		double measuredContrast = (5 * (double)stdDeviation_contrast / maxIntensity); //assumption: optimium contrast is when 5sigma=255,but practically 1.0-->1.1 is considered good contrast level.
 
-		if (measuredContrast < 1.1)
+		if (measuredContrast < 1.0)
 		{
 			newMultiplier = 1.0 + 0.75*(1.0 - measuredContrast);
 			if (newMultiplier > 1.5)
@@ -268,12 +268,16 @@ gst_oeplpreprocess_transform_ip(GstBaseTransform *trans,
 		}
 		else if(measuredContrast > 1.1)
 		{
-			newMultiplier = 1.0 + 0.5*(1.0 - measuredContrast);
+			newMultiplier = 1.0 + 0.5*(1.1 - measuredContrast);
 
 			if (newMultiplier < 0.9)
 			{
 				newMultiplier = 0.9;
 			}
+		}
+		else
+		{
+			newMultiplier=currentMultiplier;
 		}
 
 
