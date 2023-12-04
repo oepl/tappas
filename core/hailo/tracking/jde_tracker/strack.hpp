@@ -60,6 +60,7 @@ public:
     // Class members
     bool m_is_activated; // Is activated
     int m_track_id;      // Unique track id
+    int m_class_id;	 //class id
     int m_frame_id;      // Current frame id (used for measuring half-life)
     int m_tracklet_len;  // Number of frames since activation
     float m_confidence;  // Tracklet's score
