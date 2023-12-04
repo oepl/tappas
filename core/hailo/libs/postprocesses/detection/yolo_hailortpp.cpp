@@ -8,9 +8,18 @@ static std::map<uint8_t, std::string> yolo_vehicles_labels = {
     {0, "unlabeled"},
     {1, "car"}};
 
+static std::map<uint8_t, std::string> yolo_mvigs_labels = {
+    {0, "unlabeled"},
+    {1, "persons"},
+    {2, "cars"},
+    {3, "motorcycles"},
+    {4, "buses"}};
+
+
 void yolov5(HailoROIPtr roi)
 {
-    auto post = HailoNMSDecode(roi->get_tensor(DEFAULT_YOLOV5M_OUTPUT_LAYER), common::coco_eighty);
+    //auto post = HailoNMSDecode(roi->get_tensor(DEFAULT_YOLOV5M_OUTPUT_LAYER), common::coco_eighty);
+    auto post = HailoNMSDecode(roi->get_tensor(DEFAULT_YOLOV5M_OUTPUT_LAYER), yolo_mvigs_labels);
     auto detections = post.decode<float32_t, common::hailo_bbox_float32_t>();
     hailo_common::add_detections(roi, detections);
 }
