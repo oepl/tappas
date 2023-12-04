@@ -23,6 +23,14 @@
 #include "strack.hpp"
 #include "tracker_macros.hpp"
 
+//shm include
+#include<stdio.h>
+#include<sys/ipc.h>
+#include<sys/shm.h>
+#include<sys/types.h>
+#include<errno.h>
+#include<stdlib.h>
+
 #define DEFAULT_KALMAN_DISTANCE (0.7f)
 #define DEFAULT_IOU_THRESHOLD (0.8f)
 #define DEFAULT_INIT_IOU_THRESHOLD (0.9f)

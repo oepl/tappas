@@ -419,7 +419,7 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     //******************************************************************
 
     //update no of active tracks
-    m_shmp->_numTracks=this->m_tracked_stracks.size()+this->m_tracked_stracks_2.size();
+    m_shmp->_numTracks=this->m_tracked_stracks.size();
     
     //if  sot track is permanently lost report invalid track
     if(m_shmp->_selectedTarget!=-1 && m_shmp->_numTracks==0)
