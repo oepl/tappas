@@ -33,6 +33,9 @@
 #include "xtensor/xmath.hpp"
 
 __BEGIN_DECLS
+
+#define MAX_NUM_TRACKS 50
+
 enum TrackState
 {
     New = 0,

@@ -35,6 +35,47 @@
 #define DEFAULT_DEBUG (false)
 
 __BEGIN_DECLS
+
+
+typedef enum
+{
+   PERSONS = 0,
+   VEHICLES = 1
+}MVIGS_ObjectDetectionClassType;
+
+struct MVIGS_ObjectTrackingResultsType
+{
+   int topLeftX;
+   int topLeftY;
+   int width;
+   int height;
+   MVIGS_ObjectDetectionClassType classtype;
+   int trackID;
+};
+
+#define SHM_KEY 0x1234
+struct shmseg {
+   int _state=-1;
+   float _x=0;
+   float _y=0;
+   float _w=0;
+   float _h=0;
+   int _selectedTarget=-1;
+   bool _bValidTrack=false;
+   MVIGS_ObjectTrackingResultsType _tracks[MAX_NUM_TRACKS];
+   unsigned int _numTracks=0;
+   float _custom_lambda=0.98;
+   float _fakeThreshold=0.90;
+   float _byte_track_thresh=-1;
+   unsigned int _model_input_size_x=640;
+   unsigned int _model_input_size_y=640;
+   int _detect_counter=0;
+   int _reticle_rect_x=-1;
+   int _reticle_rect_y=-1;
+   int _reticle_rect_w=-1;
+   int _reticle_rect_h=-1;
+   bool _reticle_track_enable;
+};
 class JDETracker
 {
     //******************************************************************
@@ -50,12 +91,16 @@ private:
     bool m_keep_past_metadata; // keep past metadata for new detections
     int m_frame_id{0};         // the current frame id
     bool m_debug;              // debug flag to ebable output new and lost tracks
+    int m_sot_counter{0};
 
     std::vector<STrack> m_tracked_stracks;                 // Currently tracked STracks
     std::vector<STrack> m_lost_stracks;                    // Currently lost STracks
     std::vector<STrack> m_new_stracks;                     // Currently new STracks
     KalmanFilter m_kalman_filter;                          // Kalman Filter
     std::vector<hailo_object_t> m_hailo_objects_blacklist; // Objects that will never be kept track of
+
+    int m_shmid;		//shared memory id
+    struct shmseg *m_shmp;	//shared memory data
 
     //******************************************************************
     // CLASS RESOURCE MANAGEMENT
@@ -73,10 +118,36 @@ public:
                                                                                                                                   m_keep_past_metadata(keep_past_metadata), m_debug(debug), m_hailo_objects_blacklist(hailo_objects_blacklist_vec)
     {
         m_kalman_filter = KalmanFilter(std_weight_position, std_weight_position_box, std_weight_velocity, std_weight_velocity_box);
+
+	//Shared memory
+        m_shmid = shmget(SHM_KEY, sizeof(struct shmseg), 0644|IPC_CREAT);
+        if (m_shmid == -1) 
+	{
+            perror("JDETracker | Shared memory create error\n");
+        }
+
+        m_shmp = (shmseg*)shmat(m_shmid, NULL, 0);
+        
+	if (m_shmp == (void *) -1)
+        {
+            perror("JDETracker | Shared memory attach error\n");
+        }
+	else
+	{
+	    printf("JDETracker Shared memory attach success\n");
+	}
     }
 
     // Destructor
-    ~JDETracker() = default;
+    //~JDETracker() = default;
+    ~JDETracker()
+    {
+	//detach shared memory
+        if (shmdt(m_shmp) == -1)
+        {
+            perror("JDETracker | Shared memory detach error\n");
+        }
+    }
 
     //******************************************************************
     // CLASS MEMBER ACCESS
@@ -126,6 +197,7 @@ public:
 
     /******************** PRIVATE FUNCTIONS ****************************/
 private:
+    void update_trackmode(std::vector<STrack> &stracksa,std::vector<STrack> &stracksb,std::vector<STrack> &stracksc);
     void update_unmatches(std::vector<STrack *> strack_pool, std::vector<STrack> &tracked_stracks, std::vector<STrack> &lost_stracks, std::vector<STrack> &new_stracks);
     void update_matches(std::vector<std::pair<int, int>> matches, std::vector<STrack *> tracked_stracks, std::vector<STrack> &detections, std::vector<STrack> &activated_stracks);
     void linear_assignment(std::vector<std::vector<float>> &cost_matrix, int cost_matrix_rows, int cost_matrix_cols, float thresh, std::vector<std::pair<int, int>> &matches, std::vector<int> &unmatched_a, std::vector<int> &unmatched_b);

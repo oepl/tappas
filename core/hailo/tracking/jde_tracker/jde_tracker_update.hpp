@@ -170,6 +170,112 @@ inline void JDETracker::update_unmatches(std::vector<STrack *> strack_pool,
         }
     }
 }
+/**
+ * @brief update tracker datasbase based on the tracking mode. 
+ *        if mot is enabled by the user,search the selected track id 
+ *        in active tracks.if not found search in lost tracks.if the selected 
+ *	  track id is available,it is considered as a valid sot.
+ *        take place:
+*/
+inline void JDETracker::update_trackmode(std::vector<STrack> &stracksa,std::vector<STrack> &stracksb,std::vector<STrack> &stracksc)
+{
+	if(m_shmp->_selectedTarget!=-1)//if not mot
+	{
+		//search in tracked tracks
+		for (uint i = 0; i < stracksa.size(); i++)
+    		{
+        		if(stracksa[i].m_track_id==m_shmp->_selectedTarget)
+			{
+				STrack sot_track=stracksa[i];
+            			stracksa.clear();
+				stracksb.clear();
+				stracksc.clear();
+				stracksa.push_back(sot_track);
+
+                                std::vector<float> xyah= sot_track.to_xyah();
+        			m_shmp->_x=xyah[0];
+        			m_shmp->_y=xyah[1];
+        			m_shmp->_w=xyah[2];
+        			m_shmp->_h=xyah[3];
+				m_shmp->_state=sot_track.get_state();
+        			m_shmp->_bValidTrack=true;
+				return;
+			}
+		}
+		
+		//search in lost tracks
+		for (uint i = 0; i < stracksb.size(); i++)
+    		{
+        		if(stracksb[i].m_track_id==m_shmp->_selectedTarget)
+			{
+				STrack sot_track=stracksb[i];
+            			stracksa.clear();
+				stracksb.clear();
+				stracksc.clear();
+				stracksb.push_back(sot_track);
+			
+                                std::vector<float> xyah= sot_track.to_xyah();
+        			m_shmp->_x=xyah[0];
+        			m_shmp->_y=xyah[1];
+        			m_shmp->_w=xyah[2];
+        			m_shmp->_h=xyah[3];
+				m_shmp->_state=sot_track.get_state();
+        			m_shmp->_bValidTrack=true;
+				return;
+			}
+		}
+            	stracksa.clear();
+		stracksb.clear();
+	        stracksc.clear();
+	}
+	else
+	{
+        	m_shmp->_bValidTrack=false;
+		if(m_shmp->_reticle_track_enable)
+		{
+        		int nearest_track_id=-1;
+        		int min_distance=10000;//set to high value
+                        int current_distance=10000;
+                        int reticle_rect_xc=m_shmp->_reticle_rect_x+m_shmp->_reticle_rect_w/2;
+ 			int reticle_rect_yc=m_shmp->_reticle_rect_y+m_shmp->_reticle_rect_h/2;
+                        int detection_box_xc=-1;
+			int detection_box_yc=-1;
+
+        		for (uint i = 0; i < stracksa.size(); i++)
+    			{
+				std::vector<float> xyah= stracksa[i].to_xyah();
+                                detection_box_xc = xyah[0]*m_shmp->_model_input_size_x;
+				detection_box_yc = xyah[1]*m_shmp->_model_input_size_y;
+         
+                		current_distance=std::min(std::abs(reticle_rect_xc-detection_box_xc), std::abs(reticle_rect_yc-detection_box_yc)); //min of xd,yd
+                		if(current_distance<min_distance)
+                		{
+                     			min_distance=current_distance;
+                     			nearest_track_id=stracksa[i].m_track_id;
+                		}
+			}
+			for (uint i = 0; i < stracksb.size(); i++)
+    			{
+				std::vector<float> xyah= stracksb[i].to_xyah();
+                                detection_box_xc = xyah[0]*m_shmp->_model_input_size_x;
+				detection_box_yc = xyah[1]*m_shmp->_model_input_size_y;
+
+                		current_distance=std::min(std::abs(reticle_rect_xc-detection_box_xc), std::abs(reticle_rect_yc-detection_box_yc)); //min of xd,yd
+                		if(current_distance<min_distance)
+                		{
+                    			min_distance=current_distance;
+                    			nearest_track_id=stracksb[i].m_track_id;
+                		}
+			}
+        		if(min_distance<m_shmp->_reticle_rect_w/2 || min_distance<m_shmp->_reticle_rect_h/2)
+        		{
+				m_shmp->_selectedTarget=nearest_track_id;
+				m_shmp->_reticle_track_enable=false;
+        		}
+		}
+	}
+	return;
+}
 
 /**
  * @brief The main logic unit and access point of the tracker system.
@@ -293,32 +399,65 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     for (uint i = 0; i < unmatched_detections.size(); i++)
         new_stracks.emplace_back(detections[unmatched_detections[i]]);
 
+
     //******************************************************************
-    // Step 6: Update Database
+    // Step 6: update tracking mode
+    //******************************************************************
+    update_trackmode(activated_stracks,lost_stracks,new_stracks);
+
+
+    //******************************************************************
+    // Step 7: Update Database
     //******************************************************************
     // Update the tracker database members with the results of this update
     this->m_tracked_stracks = activated_stracks;
-    this->m_lost_stracks = lost_stracks;
-    this->m_new_stracks = new_stracks;
+    this->m_lost_stracks    = lost_stracks;
+    this->m_new_stracks     = new_stracks;
 
     //******************************************************************
-    // Step 7: Set the output stracks
+    // Step 8: Set the output stracks
     //******************************************************************
+
+    //update no of active tracks
+    m_shmp->_numTracks=this->m_tracked_stracks.size()+this->m_tracked_stracks_2.size();
+    
+    //if  sot track is permanently lost report invalid track
+    if(m_shmp->_selectedTarget!=-1 && m_shmp->_numTracks==0)
+    {
+	 m_sot_counter++;
+         if(m_sot_counter>m_keep_lost_frames)
+         {
+            m_shmp->_bValidTrack=false;
+    	 }
+    }
+    else
+    {
+        m_sot_counter=0; 
+    }
+
     std::vector<STrack> output_stracks;
     output_stracks.reserve(this->m_tracked_stracks.size());
     for (uint i = 0; i < this->m_tracked_stracks.size(); i++)
         output_stracks.emplace_back(this->m_tracked_stracks[i]);
 
-    // Include unconfirmed detections if requested
-    if (report_unconfirmed or this->m_debug)
-    {
-        for (uint i = 0; i < this->m_new_stracks.size(); i++)
-            output_stracks.emplace_back(this->m_new_stracks[i]);
-    }
-    if (report_lost or this->m_debug)
-    {
-        for (uint i = 0; i < this->m_lost_stracks.size(); i++)
-            output_stracks.emplace_back(this->m_lost_stracks[i]);
-    }
+    for (uint i = 0; i < this->m_lost_stracks.size(); i++)
+        output_stracks.emplace_back(this->m_lost_stracks[i]);
+
+
+    //save ouput stracksto shm
+    for (uint i = 0; i < output_stracks.size(); i++)
+    {   if(i<MAX_NUM_TRACKS)
+	{
+		STrack temp_track=output_stracks[i];
+        	std::vector<float> xyah= temp_track.to_xyah();
+		m_shmp->_tracks[i].topLeftX  = xyah[0]*m_shmp->_model_input_size_x;//tlx
+        	m_shmp->_tracks[i].topLeftY  = xyah[1]*m_shmp->_model_input_size_y;//tly
+		m_shmp->_tracks[i].width     = xyah[2]*xyah[3]*m_shmp->_model_input_size_x; //a*h
+		m_shmp->_tracks[i].height    = xyah[3]*m_shmp->_model_input_size_y; //h
+        	m_shmp->_tracks[i].trackID   = temp_track.m_track_id;
+		m_shmp->_tracks[i].classtype =(MVIGS_ObjectDetectionClassType) temp_track.m_class_id;
+	}		
+     }
+
     return output_stracks;
 }
