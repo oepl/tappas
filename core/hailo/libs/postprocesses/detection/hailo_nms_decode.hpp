@@ -13,6 +13,14 @@
 #include "common/labels/coco_ninety.hpp"
 #include "common/labels/coco_visdrone.hpp"
 
+//shared mem include
+#include<stdio.h>
+#include<sys/ipc.h>
+#include<sys/shm.h>
+#include<sys/types.h>
+#include<errno.h>
+#include<stdlib.h>
+
 static const int DEFAULT_MAX_BOXES = 100;
 static const float DEFAULT_THRESHOLD = 0.4;
 
