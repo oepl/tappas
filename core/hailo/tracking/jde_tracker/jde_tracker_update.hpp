@@ -334,27 +334,59 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     // Step 2: First association, tracked with embedding
     //******************************************************************
     // Calculate the distances between the tracked/lost stracks and the newly detected inputs
-    embedding_distance(strack_pool, detections, distances); // Calculate the distances
-    fuse_motion(distances, strack_pool, detections);        // Create the cost matrix
+    //embedding_distance(strack_pool, detections, distances); // Calculate the distances
+    //fuse_motion(distances, strack_pool, detections);        // Create the cost matrix
+
+
+    //******************************************************************
+    // Step 3.1: First association, tracked with IOU
+    //******************************************************************
+
+    //calculate the iou distance of what's left
+    distances_temp = iou_distance(strack_pool, detections);
 
     // Use linear assignment to find matches
-    linear_assignment(distances, strack_pool.size(), detections.size(), this->m_kalman_dist_thr, matches, unmatched_tracked, unmatched_detections);
+    linear_assignment(distances, strack_pool.size(), detections.size(), this->m_iou_thr, matches, unmatched_tracked, unmatched_detections);
 
     // Update the matches
     update_matches(matches, strack_pool, detections, activated_stracks);
 
-    //******************************************************************
-    // Step 3: Second association, leftover tracked with IOU
-    //******************************************************************
     // Use the unmatched_detections indices to get a vector of just the unmatched new detections
     keep_indices(detections, unmatched_detections);
 
     // Use the unmatched_tracked indices to get a vector of only unmatched, previously tracked, but-not-yet-lost stracks
     keep_indices(strack_pool, unmatched_tracked);
 
-    // Instead of embedding distance, this time we will associate based on iou,
-    // so calculate the iou distance of what's left
-    distances = iou_distance(strack_pool, detections);
+    //******************************************************************
+    // Step 3.2: Second association, leftover tracked with extended IOU
+    //******************************************************************
+
+    if(m_shmp->_iou_scale1_enable==true)
+    {
+    // calculate the iou distance of what's left
+    distances = iou_distance_custom(strack_pool, detections, m_shmp->_iou_scale_factor1);
+
+    // Recalculate the linear assignment, this time use the iou threshold
+    linear_assignment(distances, strack_pool.size(), detections.size(), this->m_iou_thr, matches, unmatched_tracked, unmatched_detections);
+	
+    // Update the matches
+    update_matches(matches, strack_pool, detections, activated_stracks);
+
+    // Break down the strack_pool to just the remaining unmatched stracks
+    keep_indices(strack_pool, unmatched_tracked);
+
+    //Use the unmatched_detections indices to get a vector of just the unmatched new detections again
+    keep_indices(detections, unmatched_detections);
+    }
+
+    //******************************************************************
+    // Step 3.3: Second association, leftover tracked with extended IOU
+    //******************************************************************
+    
+    if(m_shmp->_iou_scale2_enable==true)
+    {
+    //calculate the iou distance of what's left
+    distances = iou_distance_custom(strack_pool, detections, m_shmp->_iou_scale_factor2);
 
     // Recalculate the linear assignment, this time use the iou threshold
     linear_assignment(distances, strack_pool.size(), detections.size(), this->m_iou_thr, matches, unmatched_tracked, unmatched_detections);
@@ -365,8 +397,14 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     // Break down the strack_pool to just the remaining unmatched stracks
     keep_indices(strack_pool, unmatched_tracked);
 
+    //Use the unmatched_detections indices to get a vector of just the unmatched new detections again
+    keep_indices(detections, unmatched_detections);
+
+    }
+
     // Update the state of the remaining unmatched stracks
     update_unmatches(strack_pool, activated_stracks, lost_stracks, new_stracks);
+
 
     //******************************************************************
     // Step 4: Third association, uncomfirmed with weaker IOU

@@ -36,8 +36,8 @@ struct pr_shmseg {
     int zoomcrop_y=180; //(1080-720)/2
     int zoomcrop_width=1280;
     int zoomcrop_height=720;
-    int dest_image_width=640; //by keeping the aspect ratio of input
-    int dest_image_height=360; //by keeping the aspect ratio of input
+    int dest_image_width=1280; //by keeping the aspect ratio of input
+    int dest_image_height=720; //by keeping the aspect ratio of input
     unsigned int preprocess_count=0;
 };
 int pr_shmid;		        //shared memory id
