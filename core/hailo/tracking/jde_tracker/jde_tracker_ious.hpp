@@ -216,7 +216,7 @@ inline std::vector<std::vector<float>> JDETracker::iou_distance(std::vector<STra
  *         A dense graph of iou distances (1 - iou), of shape atracks.size() x btracks.size()
  *         For interpreting distances - 1 is far, 0 is close
  */
-inline std::vector<std::vector<float>> JDETracker::iou_distance(std::vector<STrack *> &atracks, std::vector<STrack> &btracks,float scale)
+inline std::vector<std::vector<float>> JDETracker::iou_distance_custom(std::vector<STrack *> &atracks, std::vector<STrack> &btracks,float scale)
 {
     if ( (atracks.size() == 0) | (btracks.size() == 0) )
     {

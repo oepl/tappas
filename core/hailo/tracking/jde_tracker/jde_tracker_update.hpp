@@ -343,7 +343,7 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     //******************************************************************
 
     //calculate the iou distance of what's left
-    distances_temp = iou_distance(strack_pool, detections);
+    distances = iou_distance(strack_pool, detections);
 
     // Use linear assignment to find matches
     linear_assignment(distances, strack_pool.size(), detections.size(), this->m_iou_thr, matches, unmatched_tracked, unmatched_detections);
