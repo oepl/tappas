@@ -102,7 +102,7 @@ inline std::vector<std::vector<float>> ious_custom(std::vector<std::vector<float
 		float btlbr_2 = btlbrs[k][2] + t_w * scale;
 		float btlbr_3 = btlbrs[k][3] + t_h * scale;
 
-		vector<float> ious_tmp;
+		std::vector<float> ious_tmp;
 		float box_area = (btlbr_2 - btlbr_0 + 1)*(btlbr_3 -btlbr_1 + 1);
 		for (int n = 0; n < atlbrs.size(); n++)
 		{
