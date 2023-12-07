@@ -113,10 +113,10 @@ inline std::vector<std::vector<float>> ious_custom(std::vector<std::vector<float
 			float atlbr_2 = atlbrs[n][2] + d_w * scale;
 			float atlbr_3 = atlbrs[n][3] + d_h * scale;
 
-			float iw = min(atlbr_2, btlbr_2) - max(atlbr_0, btlbr_0) + 1;
+			float iw = std::min(atlbr_2, btlbr_2) - std::max(atlbr_0, btlbr_0) + 1;
 			if (iw > 0)
 			{
-				float ih = min(atlbr_3, btlbr_3) - max(atlbr_1, btlbr_1) + 1;
+				float ih = std::min(atlbr_3, btlbr_3) - std::max(atlbr_1, btlbr_1) + 1;
 				if (ih > 0)
 				{
 					float ua = (atlbr_2 - atlbr_0 + 1)*(atlbr_3 - atlbr_1 + 1) + box_area - iw * ih;
