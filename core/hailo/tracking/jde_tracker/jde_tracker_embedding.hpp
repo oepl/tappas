@@ -142,7 +142,7 @@ inline void JDETracker::fuse_motion_custom(std::vector<std::vector<float>> &cost
     {
         for (uint j = 0; j < cost_matrix[i].size(); j++)
         {
-            if (tracks[i]->m_track_id != detections[j]->m_track_id)
+            if (tracks[i]->m_class_id != detections[j].m_class_id)
             {
                 cost_matrix[i][j] = FLT_MAX;
             }
