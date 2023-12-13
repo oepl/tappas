@@ -345,7 +345,7 @@ gst_oeplpreprocess_transform_ip(GstBaseTransform *trans,
    }
 
     /*update final image*/
-    mat(cv::Rect(0,pr_shmp->dest_image_height,pr_shmp->dest_image_width,pr_shmp->dest_image_width-pr_shmp->dest_image_height)).setTo(0); //set 640*280 portion of 640*640(model input)to 0
+    mat(cv::Rect(0,pr_shmp->dest_image_height,pr_shmp->dest_image_width,(STREAM_HEIGHT)-pr_shmp->dest_image_height)).setTo(0); //set 640*280 portion of 640*640(model input)to 0
     destMat.copyTo(mat(cv::Rect(0,0,pr_shmp->dest_image_width,pr_shmp->dest_image_height))); //copy 640*360 to tl 640*360 of 1920*1080
 
     if(status==GST_FLOW_ERROR)
