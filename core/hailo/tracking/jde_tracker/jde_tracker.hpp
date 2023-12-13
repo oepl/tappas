@@ -226,6 +226,8 @@ private:
 
     void embedding_distance(std::vector<STrack *> &tracks, std::vector<STrack> &detections, std::vector<std::vector<float>> &cost_matrix);
     void fuse_motion(std::vector<std::vector<float>> &cost_matrix, std::vector<STrack *> &tracks, std::vector<STrack> &detections, float lambda_);
+    void fuse_motion_custom(std::vector<std::vector<float>> &cost_matrix, std::vector<STrack *> &tracks, std::vector<STrack> &detections);
+
 };
 __END_DECLS
 

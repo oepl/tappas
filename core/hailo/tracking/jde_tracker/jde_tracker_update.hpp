@@ -344,6 +344,7 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
 
     //calculate the iou distance of what's left
     distances = iou_distance(strack_pool, detections);
+    fuse_motion_custom(distances, strack_pool, detections);
 
     // Use linear assignment to find matches
     linear_assignment(distances, strack_pool.size(), detections.size(), this->m_iou_thr, matches, unmatched_tracked, unmatched_detections);
@@ -365,6 +366,8 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     {
     // calculate the iou distance of what's left
     distances = iou_distance_custom(strack_pool, detections, m_shmp->_iou_scale_factor1);
+    fuse_motion_custom(distances, strack_pool, detections);
+
 
     // Recalculate the linear assignment, this time use the iou threshold
     linear_assignment(distances, strack_pool.size(), detections.size(), this->m_iou_thr, matches, unmatched_tracked, unmatched_detections);
@@ -387,6 +390,8 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     {
     //calculate the iou distance of what's left
     distances = iou_distance_custom(strack_pool, detections, m_shmp->_iou_scale_factor2);
+    fuse_motion_custom(distances, strack_pool, detections);
+
 
     // Recalculate the linear assignment, this time use the iou threshold
     linear_assignment(distances, strack_pool.size(), detections.size(), this->m_iou_thr, matches, unmatched_tracked, unmatched_detections);
@@ -417,6 +422,8 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
 
     // Recalculate the iou distance, this time between unconfirmed stracks and the remaining detections
     distances = iou_distance(unconfirmed_pool, detections);
+    fuse_motion_custom(distances, strack_pool, detections);
+
 
     // Recalculate the linear assignment, this time with the lower m_init_iou_thr threshold
     linear_assignment(distances, unconfirmed_pool.size(), detections.size(), this->m_init_iou_thr, matches, unmatched_tracked, unmatched_detections);
