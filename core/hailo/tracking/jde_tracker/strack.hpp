@@ -77,7 +77,7 @@ public:
     TrackerTypes::KAL_COVA m_covariance;
 
     ocv_kalman::kalman m_kalman;
-    cv::Rect m_kalman_rect;
+    cv::Rect2f m_kalman_rect;
 
 private:
     int m_times_seen;
