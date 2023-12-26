@@ -35,10 +35,6 @@
 #define DEFAULT_KALMAN_DISTANCE (0.7f)
 #define DEFAULT_IOU_THRESHOLD (0.8f)
 #define DEFAULT_INIT_IOU_THRESHOLD (0.9f)
-#define DEFAULT_KEEP_FRAMES_NEW (1)
-#define DEFAULT_KEEP_FRAMES_LOST (100)
-#define DEFAULT_KEEP_FRAMES_TRACKED (5)
-#define DEFAULT_KEEP_PREDICT (30)
 #define DEFAULT_KEEP_FRAMES (2)
 #define DEFAULT_KEEP_PAST_METADATA (true)
 #define DEFAULT_STD_WEIGHT_POSITION (0.01)
@@ -126,8 +122,8 @@ private:
 public:
     // Default Constructor
     JDETracker(float kalman_dist = DEFAULT_KALMAN_DISTANCE, float iou_thr = DEFAULT_IOU_THRESHOLD,
-               float init_iou_thr = DEFAULT_INIT_IOU_THRESHOLD, int keep_tracked = KEEP_FRAMES_TRACKED,
-               int keep_new = DEFAULT_KEEP_FRAMES_NEW, int keep_lost = DEFAULT_KEEP_FRAMES_LOST,int keep_predict =  DEFAULT_KEEP_PREDICT,
+               float init_iou_thr = DEFAULT_INIT_IOU_THRESHOLD, int keep_tracked = DEFAULT_KEEP_FRAMES,
+               int keep_new = DEFAULT_KEEP_FRAMES, int keep_lost = DEFAULT_KEEP_FRAMES,int keep_predict =  DEFAULT_KEEP_FRAMES,
                bool keep_past_metadata = DEFAULT_KEEP_PAST_METADATA, float std_weight_position = DEFAULT_STD_WEIGHT_POSITION,
                float std_weight_position_box = DEFAULT_STD_WEIGHT_POSITION_BOX, float std_weight_velocity = DEFAULT_STD_WEIGHT_VELOCITY,
                float std_weight_velocity_box = DEFAULT_STD_WEIGHT_VELOCITY_BOX, bool debug = DEFAULT_DEBUG,
