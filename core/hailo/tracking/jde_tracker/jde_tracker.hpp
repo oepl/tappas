@@ -18,6 +18,7 @@
 
 // Tappas includes
 #include "hailo_objects.hpp"
+#include "kalman.hpp"
 #include "kalman_filter.hpp"
 #include "lapjv.hpp"
 #include "strack.hpp"
@@ -34,6 +35,10 @@
 #define DEFAULT_KALMAN_DISTANCE (0.7f)
 #define DEFAULT_IOU_THRESHOLD (0.8f)
 #define DEFAULT_INIT_IOU_THRESHOLD (0.9f)
+#define DEFAULT_KEEP_FRAMES_NEW (1)
+#define DEFAULT_KEEP_FRAMES_LOST (100)
+#define DEFAULT_KEEP_FRAMES_TRACKED (5)
+#define DEFAULT_KEEP_PREDICT (30)
 #define DEFAULT_KEEP_FRAMES (2)
 #define DEFAULT_KEEP_PAST_METADATA (true)
 #define DEFAULT_STD_WEIGHT_POSITION (0.01)
@@ -100,6 +105,7 @@ private:
     int m_keep_tracked_frames; // number of frames to keep tracking w/o detection
     int m_keep_new_frames;     // number of frames to keep new detections w/o detection
     int m_keep_lost_frames;    // number of frames to keep lost detections w/o detection
+    int m_keep_predict_frames;  // number of frames to keep predicting w/o detection
     bool m_keep_past_metadata; // keep past metadata for new detections
     int m_frame_id{0};         // the current frame id
     bool m_debug;              // debug flag to ebable output new and lost tracks
@@ -120,13 +126,13 @@ private:
 public:
     // Default Constructor
     JDETracker(float kalman_dist = DEFAULT_KALMAN_DISTANCE, float iou_thr = DEFAULT_IOU_THRESHOLD,
-               float init_iou_thr = DEFAULT_INIT_IOU_THRESHOLD, int keep_tracked = DEFAULT_KEEP_FRAMES,
-               int keep_new = DEFAULT_KEEP_FRAMES, int keep_lost = DEFAULT_KEEP_FRAMES,
+               float init_iou_thr = DEFAULT_INIT_IOU_THRESHOLD, int keep_tracked = KEEP_FRAMES_TRACKED,
+               int keep_new = DEFAULT_KEEP_FRAMES_NEW, int keep_lost = DEFAULT_KEEP_FRAMES_LOST,int keep_predict =  DEFAULT_KEEP_PREDICT,
                bool keep_past_metadata = DEFAULT_KEEP_PAST_METADATA, float std_weight_position = DEFAULT_STD_WEIGHT_POSITION,
                float std_weight_position_box = DEFAULT_STD_WEIGHT_POSITION_BOX, float std_weight_velocity = DEFAULT_STD_WEIGHT_VELOCITY,
                float std_weight_velocity_box = DEFAULT_STD_WEIGHT_VELOCITY_BOX, bool debug = DEFAULT_DEBUG,
                std::vector<hailo_object_t> hailo_objects_blacklist_vec = {HAILO_LANDMARKS, HAILO_DEPTH_MASK, HAILO_CLASS_MASK}) : m_kalman_dist_thr(kalman_dist), m_iou_thr(iou_thr), m_init_iou_thr(init_iou_thr),
-                                                                                                                                  m_keep_tracked_frames(keep_tracked), m_keep_new_frames(keep_new), m_keep_lost_frames(keep_lost),
+                                                                                                                                  m_keep_tracked_frames(keep_tracked), m_keep_new_frames(keep_new), m_keep_lost_frames(keep_lost),m_keep_predict_frames(keep_predict),
                                                                                                                                   m_keep_past_metadata(keep_past_metadata), m_debug(debug), m_hailo_objects_blacklist(hailo_objects_blacklist_vec)
     {
         m_kalman_filter = KalmanFilter(std_weight_position, std_weight_position_box, std_weight_velocity, std_weight_velocity_box);
@@ -172,6 +178,7 @@ public:
     void set_keep_tracked_frames(int new_keep_tracked) { m_keep_tracked_frames = new_keep_tracked; }
     void set_keep_new_frames(int new_keep_new) { m_keep_new_frames = new_keep_new; }
     void set_keep_lost_frames(int new_keep_lost) { m_keep_lost_frames = new_keep_lost; }
+    void set_keep_predict_frames(int new_keep_predict) { m_keep_predict_frames = new_keep_predict; }
     void set_keep_past_metadata(bool new_keep_past_metadata) { m_keep_past_metadata = new_keep_past_metadata; }
 
     void set_std_weight_position(float std_weight_position) { m_kalman_filter.set_std_weight_position(std_weight_position); }
@@ -188,6 +195,7 @@ public:
     int get_keep_tracked_frames() { return m_keep_tracked_frames; }
     int get_keep_new_frames() { return m_keep_new_frames; }
     int get_keep_lost_frames() { return m_keep_lost_frames; }
+    int get_keep_predict_frames() { return m_keep_predict_frames; }
     bool get_keep_past_metadata() { return m_keep_past_metadata; }
     float get_std_weight_position() { return m_kalman_filter.get_std_weight_position(); }
     float get_std_weight_position_box() { return m_kalman_filter.get_std_weight_position_box(); }

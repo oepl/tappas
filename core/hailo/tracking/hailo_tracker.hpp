@@ -36,6 +36,7 @@ struct HailoTrackerParams
     int keep_tracked_frames;
     int keep_new_frames;
     int keep_lost_frames;
+    int keep_predict_frames;
     bool keep_past_metadata;
     float std_weight_position;
     float std_weight_position_box;
@@ -73,6 +74,7 @@ public:
     void set_keep_tracked_frames(const std::string &name, int new_keep_tracked);
     void set_keep_new_frames(const std::string &name, int new_keep_new);
     void set_keep_lost_frames(const std::string &name, int new_keep_lost);
+    void set_keep_predict_frames(const std::string &name, int new_keep_predict);
     void set_keep_past_metadata(const std::string &name, bool new_keep_past);
     void set_std_weight_position(const std::string &name, float new_std_weight_pos);
     void set_std_weight_position_box(const std::string &name, float new_std_weight_position_box);

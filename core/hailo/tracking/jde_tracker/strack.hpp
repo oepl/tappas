@@ -22,6 +22,7 @@
 #include "hailo_common.hpp"
 #include "hailo_objects.hpp"
 // Tracker includes
+#include "kalman.hpp"
 #include "kalman_filter.hpp"
 #include "tracker_macros.hpp"
 
@@ -74,6 +75,9 @@ public:
 
     TrackerTypes::KAL_MEAN m_mean;
     TrackerTypes::KAL_COVA m_covariance;
+
+    ocv_kalman::kalman m_kalman;
+    cv::Rect m_kalman_rect;
 
 private:
     int m_times_seen;
@@ -345,6 +349,12 @@ public:
         this->m_mean = mc.first;
         this->m_covariance = mc.second;
 
+	this->m_kalman_rect.x = this->tmp_location_tlwh[0];
+	this->m_kalman_rect.y = this->tmp_location_tlwh[1];
+	this->m_kalman_rect.width =  this->tmp_location_tlwh[2];
+	this->m_kalman_rect.height = this->tmp_location_tlwh[3];
+	this->m_kalman.Init(this->m_kalman_rect);//initialize
+
         update_tlwh();
 
         this->m_tracklet_len = 0;
@@ -376,6 +386,13 @@ public:
         auto mc = this->m_kalman_filter->update(this->m_mean, this->m_covariance, xyah_box);
         this->m_mean = mc.first;
         this->m_covariance = mc.second;
+
+
+	this->m_kalman_rect.x = this->m_tlwh[0];
+	this->m_kalman_rect.y = this->m_tlwh[1];
+	this->m_kalman_rect.width =  this->m_tlwh[2];
+	this->m_kalman_rect.height = this->m_tlwh[3];
+	this->m_kalman.Predict(this->m_kalman_rect, false);//correction
 
         update_tlwh();
 
@@ -416,6 +433,12 @@ public:
         auto mc = this->m_kalman_filter->update(this->m_mean, this->m_covariance, xyah_box);
         this->m_mean = mc.first;
         this->m_covariance = mc.second;
+
+	this->m_kalman_rect.x = this->m_tlwh[0];
+	this->m_kalman_rect.y = this->m_tlwh[1];
+	this->m_kalman_rect.width =  this->m_tlwh[2];
+	this->m_kalman_rect.height = this->m_tlwh[3];
+	this->m_kalman.Predict(this->m_kalman_rect, false);//correction
 
         update_tlwh();
 

@@ -14,6 +14,7 @@
 
 // Tappas includes
 #include "hailo_objects.hpp"
+#include "kalman.hpp"
 #include "kalman_filter.hpp"
 #include "strack.hpp"
 #include "tracker_macros.hpp"
@@ -139,6 +140,13 @@ inline void JDETracker::update_unmatches(std::vector<STrack *> strack_pool,
         case TrackState::Tracked:
             if (this->m_frame_id - track->end_frame() < this->m_keep_tracked_frames)
             {
+		if (this->m_frame_id - track->end_frame() < this->m_keep_predict_frames)
+		{
+			track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
+			track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
+			track->m_tlwh[0] = track->m_kalman_rect.x;
+			track->m_tlwh[1] = track->m_kalman_rect.y;
+		}
                 tracked_stracks.push_back(*track); // Not over threshold, so still tracked
             }
             else
@@ -150,6 +158,14 @@ inline void JDETracker::update_unmatches(std::vector<STrack *> strack_pool,
         case TrackState::Lost:
             if (this->m_frame_id - track->end_frame() < this->m_keep_lost_frames)
             {
+		if (this->m_frame_id - track->end_frame() < this->m_keep_predict_frames)
+		{
+			track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
+			track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
+			track->m_tlwh[0] = track->m_kalman_rect.x;
+			track->m_tlwh[1] = track->m_kalman_rect.y;
+		}
+
                 lost_stracks.push_back(*track); // Not over threshold, so still lost
             }
             else

@@ -15,6 +15,7 @@
 // Tappas includes
 #include "hailo_objects.hpp"
 #include "hailo_common.hpp"
+#include "kalman.hpp"
 #include "kalman_filter.hpp"
 #include "strack.hpp"
 #include "tracker_macros.hpp"

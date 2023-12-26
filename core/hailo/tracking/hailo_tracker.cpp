@@ -43,6 +43,7 @@ void HailoTracker::add_jde_tracker(const std::string &name, HailoTrackerParams t
                                                  tracker_params.keep_tracked_frames,
                                                  tracker_params.keep_new_frames,
                                                  tracker_params.keep_lost_frames,
+						 tracker_params.keep_predict_frames,
                                                  tracker_params.keep_past_metadata,
                                                  tracker_params.std_weight_position,
                                                  tracker_params.std_weight_position_box,
@@ -134,6 +135,12 @@ void HailoTracker::set_keep_lost_frames(const std::string &name, int new_keep_lo
     std::lock_guard<std::mutex> lock(mutex_);
     priv->trackers[name].set_keep_lost_frames(new_keep_lost);
 }
+void HailoTracker::set_keep_predict_frames(const std::string &name, int new_keep_predict)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    priv->trackers[name].set_keep_predict_frames(new_keep_predict);
+}
+
 void HailoTracker::set_keep_past_metadata(const std::string &name, bool new_keep_past)
 {
     std::lock_guard<std::mutex> lock(mutex_);
