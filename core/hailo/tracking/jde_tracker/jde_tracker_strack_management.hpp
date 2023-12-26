@@ -213,3 +213,62 @@ inline void JDETracker::remove_duplicate_stracks(std::vector<STrack> &stracksa, 
     stracksb.clear();
     stracksb.assign(resb.begin(), resb.end());
 }
+/**
+ * @brief Perform a difference among STracks of same set,
+ *        Ending up with a set of exclusive instances.
+ *        No return is made, the vestors are changed in place.
+ * 
+ * @param resa  -  std::vector<STrack>
+ *        A vector to fill in with STracks that are exclusive to stracksa
+ *
+ * @param stracksa  -  std::vector<STrack>
+ *        A set of STracks, exclusive instances will end up in resa
+ *
+ */
+
+inline void JDETracker::remove_duplicate_stracks_custom(std::vector<STrack> &stracksa,float iou_thresh)
+{ 
+    std::vector<STrack> resa;
+    std::vector<std::vector<float>> pdist = iou_distance(stracksa, stracksa);
+    std::vector<std::pair<int, int>> pairs;
+    float iou_dist_thresh=1-iou_thresh;
+    for (uint i = 0; i < pdist.size(); i++)
+    {
+        for (uint j = 0; j < pdist[i].size(); j++)
+        {
+            if (pdist[i][j] < iou_dist_thresh)
+            {
+		if(i!=j)
+                {
+                    pairs.push_back(std::pair<int, int>(i, j));
+		}
+            }
+        }
+    }
+
+    std::vector<int> dupa;
+    for (uint i = 0; i < pairs.size(); i++)
+    {   
+        if (stracksa[pairs[i].first].m_track_id > stracksa[pairs[i].second].m_track_id)
+	{
+            dupa.push_back(pairs[i].first); //reject first
+	}
+	else
+	{
+            dupa.push_back(pairs[i].second); //reject second
+	}
+    }
+
+    for (uint i = 0; i < stracksa.size(); i++)
+    {
+        std::vector<int>::iterator iter = find(dupa.begin(), dupa.end(), i);
+        if (iter == dupa.end())
+        {
+            resa.push_back(stracksa[i]);
+        }
+    }
+
+    // update the survived
+    stracksa.clear();
+    stracksa.assign(resa.begin(), resa.end());
+}

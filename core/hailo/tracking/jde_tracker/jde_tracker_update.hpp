@@ -460,15 +460,20 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     for (uint i = 0; i < unmatched_detections.size(); i++)
         new_stracks.emplace_back(detections[unmatched_detections[i]]);
 
+    //******************************************************************
+    // Step 6: remove fake stracks
+    //******************************************************************
+    remove_duplicate_stracks_custom( activated_stracks,m_shmp->_fakeThreshold);
+
 
     //******************************************************************
-    // Step 6: update tracking mode
+    // Step 7: update tracking mode
     //******************************************************************
     update_trackmode(activated_stracks,lost_stracks,new_stracks);
 
 
     //******************************************************************
-    // Step 7: Update Database
+    // Step 8: Update Database
     //******************************************************************
     // Update the tracker database members with the results of this update
     this->m_tracked_stracks = activated_stracks;
@@ -476,7 +481,7 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     this->m_new_stracks     = new_stracks;
 
     //******************************************************************
-    // Step 8: Set the output stracks
+    // Step 9: Set the output stracks
     //******************************************************************
 
     //update no of active tracks
