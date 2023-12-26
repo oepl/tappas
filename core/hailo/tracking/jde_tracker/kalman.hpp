@@ -17,7 +17,7 @@ namespace ocv_kalman
 {
 class kalman
 {
-private:
+	private:
 	bool _initialized = false;
 
 	cv::KalmanFilter _k;
@@ -90,13 +90,13 @@ public:
 	{
 	}
 
-	void Init(cv::Rect bbox)
+	void Init(cv::Rect2f bbox)
 	{
 		if (!_initialized)
 		{
-			cv::Point icentre;
-			icentre.x = bbox.x + bbox.width / 2;
-			icentre.y = bbox.y + bbox.height / 2;
+			cv::Point2f icentre;
+			icentre.x = bbox.x + bbox.width / 2.0;
+			icentre.y = bbox.y + bbox.height / 2.0;
 			if (icentre.x != 0 || icentre.y != 0) //this ensures valid input
 			{
 				_measurement.at<float>(0) = icentre.x;
@@ -122,13 +122,13 @@ public:
 
 	}
 
-	void Predict(cv::Rect& bbox, bool predict)
+	void Predict(cv::Rect2f& bbox, bool predict)
 	{
 		if (_initialized)
 		{
-			cv::Point icentre, ocentre;
-			icentre.x = bbox.x + bbox.width / 2;
-			icentre.y = bbox.y + bbox.height / 2;
+			cv::Point2f icentre, ocentre;
+			icentre.x = bbox.x + bbox.width / 2.0;
+			icentre.y = bbox.y + bbox.height / 2.0;
 
 			try
 			{
@@ -151,8 +151,8 @@ public:
 
 				ocentre.x = _state.at<float>(0);
 				ocentre.y = _state.at<float>(2);
-				bbox.x = ocentre.x - bbox.width / 2;
-				bbox.y = ocentre.y - bbox.height / 2;
+				bbox.x = ocentre.x - bbox.width / 2.0;
+				bbox.y = ocentre.y - bbox.height / 2.0;
 			}
 			catch (const std::exception& e)
 			{
@@ -162,7 +162,7 @@ public:
 		}
 		else
 		{
-			std::cout << "ERROR:kalman uninitialized" << std::endl;
+			std::cout << "ERROR uninitialized" << std::endl;
 		}
 	}
 };
