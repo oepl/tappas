@@ -146,8 +146,8 @@ inline void JDETracker::update_unmatches(std::vector<STrack *> strack_pool,
 			track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
 			track->m_tlwh[0] = track->m_kalman_rect.x;
 			track->m_tlwh[1] = track->m_kalman_rect.y;
-			printf("predicted:%d\n",m_keep_predict_frames);
-			printf("predicted:%f,%f,%f,%f\n",track->m_tlwh[0],track->m_tlwh[1],track->m_tlwh[2],track->m_tlwh[3]);
+			printf("tracked : predicted:%d\n",m_keep_predict_frames);
+			printf("tracked : predicted:%f,%f,%f,%f\n",track->m_tlwh[0],track->m_tlwh[1],track->m_tlwh[2],track->m_tlwh[3]);
 
 		}
                 tracked_stracks.push_back(*track); // Not over threshold, so still tracked
@@ -167,6 +167,10 @@ inline void JDETracker::update_unmatches(std::vector<STrack *> strack_pool,
 			track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
 			track->m_tlwh[0] = track->m_kalman_rect.x;
 			track->m_tlwh[1] = track->m_kalman_rect.y;
+
+			printf("lost: predicted:%d\n",m_keep_predict_frames);
+			printf("lost: predicted:%f,%f,%f,%f\n",track->m_tlwh[0],track->m_tlwh[1],track->m_tlwh[2],track->m_tlwh[3]);
+
 		}
 
                 lost_stracks.push_back(*track); // Not over threshold, so still lost
@@ -508,9 +512,6 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     output_stracks.reserve(this->m_tracked_stracks.size());
     for (uint i = 0; i < this->m_tracked_stracks.size(); i++)
         output_stracks.emplace_back(this->m_tracked_stracks[i]);
-
-    for (uint i = 0; i < this->m_lost_stracks.size(); i++)
-        output_stracks.emplace_back(this->m_lost_stracks[i]);
 
 
     //save ouput stracksto shm
