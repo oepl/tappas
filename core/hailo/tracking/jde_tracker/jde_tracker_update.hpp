@@ -146,6 +146,9 @@ inline void JDETracker::update_unmatches(std::vector<STrack *> strack_pool,
 			track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
 			track->m_tlwh[0] = track->m_kalman_rect.x;
 			track->m_tlwh[1] = track->m_kalman_rect.y;
+			printf("predicted:%d\n",m_keep_predicted_frames\n");
+			printf("predicted:%f,%f,%f,%f\n",track->m_tlwh[0],track->m_tlwh[1],track->m_tlwh[2],track->m_tlwh[3]\n");
+
 		}
                 tracked_stracks.push_back(*track); // Not over threshold, so still tracked
             }
@@ -432,7 +435,7 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     //******************************************************************
     // Deal with the unconfirmed stracks, these are usually stracks with only one beginning frame
     // Use the unmatched_detections indices to get a vector of just the unmatched new detections again
-    keep_indices(detections, unmatched_detections);
+    //keep_indices(detections, unmatched_detections);
     std::vector<STrack> blank;
     std::vector<STrack *> unconfirmed_pool = joint_strack_pointers(this->m_new_stracks, blank); // Prepare a pool of unconfirmed stracks
 
