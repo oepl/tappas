@@ -150,7 +150,7 @@ public:
 	{
 	    printf("JDETracker Shared memory attach success\n");
 	}
-	printf("tracked,lost,new,predicted:%d,%d,%d,%d\n",m_keep_tracked_frames,m_keep_lost_frames,m_keep_new_frames,m_keep_predicted_frames\n");
+	printf("tracked,lost,new,predicted:%d,%d,%d,%d\n",m_keep_tracked_frames,m_keep_lost_frames,m_keep_new_frames,m_keep_predicted_frames);
     }
 
     // Destructor
