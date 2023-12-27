@@ -146,7 +146,7 @@ inline void JDETracker::update_unmatches(std::vector<STrack *> strack_pool,
 			track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
 			track->m_tlwh[0] = track->m_kalman_rect.x;
 			track->m_tlwh[1] = track->m_kalman_rect.y;
-			printf("predicted:%d\n",m_keep_predicted_frames\n");
+			printf("predicted:%d\n",m_keep_predict_frames\n");
 			printf("predicted:%f,%f,%f,%f\n",track->m_tlwh[0],track->m_tlwh[1],track->m_tlwh[2],track->m_tlwh[3]\n");
 
 		}
