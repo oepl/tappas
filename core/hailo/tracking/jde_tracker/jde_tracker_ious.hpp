@@ -83,56 +83,58 @@ inline std::vector<std::vector<float>> ious(std::vector<std::vector<float>> &atl
  *         A dense graph of of ious of shape atlbrs.size() x btlbrs.size()
  *         For interpreting distances - 0 is far, 1 is close
  */
-inline std::vector<std::vector<float>> ious_custom(std::vector<std::vector<float>> &atlbrs, std::vector<std::vector<float>> &btlbrs,float scale)
+inline std::vector<std::vector<float>> ious_custom(std::vector<std::vector<float>> &atlbrs, std::vector<std::vector<float>> &btlbrs, float scale)
 {
     // The iou graph will be of shape atlbrs.size() x btlbrs.size()
-    std::vector<std::vector<float>> ious( atlbrs.size() , std::vector<float> (btlbrs.size()));
+    std::vector<std::vector<float>> ious(atlbrs.size(), std::vector<float>(btlbrs.size()));
 
-    // If there are no box, then return
+    // If there are no boxes, then return
     if (atlbrs.size() * btlbrs.size() == 0)
         return ious;
 
-	//bbox_ious
-	for (int k = 0; k < btlbrs.size(); k++)
-	{
-		float t_w = (btlbrs[k][2] - btlbrs[k][0] + 1);
-		float t_h = (btlbrs[k][3] - btlbrs[k][1] + 1);
-		float btlbr_0 = btlbrs[k][0] - t_w * scale;
-		float btlbr_1 = btlbrs[k][1] - t_h * scale;
-		float btlbr_2 = btlbrs[k][2] + t_w * scale;
-		float btlbr_3 = btlbrs[k][3] + t_h * scale;
+    // Calculate IoU for each pair of bounding boxes
+    for (int k = 0; k < btlbrs.size(); k++)
+    {
+        // Calculate extended normalized bounding box coordinates for box k
+        float t_w = btlbrs[k][2] - btlbrs[k][0];
+        float t_h = btlbrs[k][3] - btlbrs[k][1];
+        float btlbr_0 = btlbrs[k][0] - t_w * scale;
+        float btlbr_1 = btlbrs[k][1] - t_h * scale;
+        float btlbr_2 = btlbrs[k][2] + t_w * scale;
+        float btlbr_3 = btlbrs[k][3] + t_h * scale;
 
-		std::vector<float> ious_tmp;
-		float box_area = (btlbr_2 - btlbr_0 + 1)*(btlbr_3 -btlbr_1 + 1);
-		for (int n = 0; n < atlbrs.size(); n++)
-		{
-			float d_w = (atlbrs[n][2] - atlbrs[n][0] + 1);
-			float d_h = (atlbrs[n][3] - atlbrs[n][1] + 1);
-			float atlbr_0 = atlbrs[n][0] - d_w * scale;
-			float atlbr_1 = atlbrs[n][1] - d_h * scale;
-			float atlbr_2 = atlbrs[n][2] + d_w * scale;
-			float atlbr_3 = atlbrs[n][3] + d_h * scale;
+        // Iterate over the bounding boxes in atlbrs
+        for (int n = 0; n < atlbrs.size(); n++)
+        {
+            // Calculate extended normalized bounding box coordinates for box n
+            float d_w = atlbrs[n][2] - atlbrs[n][0];
+            float d_h = atlbrs[n][3] - atlbrs[n][1];
+            float atlbr_0 = atlbrs[n][0] - d_w * scale;
+            float atlbr_1 = atlbrs[n][1] - d_h * scale;
+            float atlbr_2 = atlbrs[n][2] + d_w * scale;
+            float atlbr_3 = atlbrs[n][3] + d_h * scale;
 
-			float iw = std::min(atlbr_2, btlbr_2) - std::max(atlbr_0, btlbr_0) + 1;
-			if (iw > 0)
-			{
-				float ih = std::min(atlbr_3, btlbr_3) - std::max(atlbr_1, btlbr_1) + 1;
-				if (ih > 0)
-				{
-					float ua = (atlbr_2 - atlbr_0 + 1)*(atlbr_3 - atlbr_1 + 1) + box_area - iw * ih;
-					ious[n][k] = iw * ih / ua;
-				}
-				else
-				{
-					ious[n][k] = 0.0;
-				}
-			}
-			else
-			{
-				ious[n][k] = 0.0;
-			}
-		}
-	}
+            // Calculate intersection over union (IoU) in normalized coordinates
+            float iw = std::min(atlbr_2, btlbr_2) - std::max(atlbr_0, btlbr_0);
+            if (iw > 0)
+            {
+                float ih = std::min(atlbr_3, btlbr_3) - std::max(atlbr_1, btlbr_1);
+                if (ih > 0)
+                {
+                    float ua = (atlbr_2 - atlbr_0) * (atlbr_3 - atlbr_1) + (btlbr_2 - btlbr_0) * (btlbr_3 - btlbr_1) - iw * ih;
+                    ious[n][k] = iw * ih / ua;
+                }
+                else
+                {
+                    ious[n][k] = 0.0;
+                }
+            }
+            else
+            {
+                ious[n][k] = 0.0;
+            }
+        }
+    }
 
     return ious;
 }

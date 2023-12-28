@@ -366,14 +366,11 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     //******************************************************************
 
 
-    printf("  iou_distance first\n");
-
     //calculate the iou distance of what's left
     distances = iou_distance(strack_pool, detections);
-    printf("  iou_distance first post\n");
+
     fuse_motion_custom(distances, strack_pool, detections);
 
-    printf("  fuse_motion_custom first\n");
     // Use linear assignment to find matches
     linear_assignment(distances, strack_pool.size(), detections.size(), this->m_iou_thr, matches, unmatched_tracked, unmatched_detections);
 
@@ -435,7 +432,6 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
 
     }
 
-      printf("updating unmatches\n");
     // Update the state of the remaining unmatched stracks
     update_unmatches(strack_pool, activated_stracks, lost_stracks, new_stracks);
 
@@ -445,18 +441,15 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     //******************************************************************
     // Deal with the unconfirmed stracks, these are usually stracks with only one beginning frame
     // Use the unmatched_detections indices to get a vector of just the unmatched new detections again
-    //keep_indices(detections, unmatched_detections);
+
     std::vector<STrack> blank;
     std::vector<STrack *> unconfirmed_pool = joint_strack_pointers(this->m_new_stracks, blank); // Prepare a pool of unconfirmed stracks
 
     // Recalculate the iou distance, this time between unconfirmed stracks and the remaining detections
     distances = iou_distance(unconfirmed_pool, detections);
 
-    printf(" Third association after iou distance\n");
+    fuse_motion_custom(distances,unconfirmed_pool, detections);
 
-    fuse_motion_custom(distances, strack_pool, detections);
-
-    printf("Third association after fuse motion\n");
 
     // Recalculate the linear assignment, this time with the lower m_init_iou_thr threshold
     linear_assignment(distances, unconfirmed_pool.size(), detections.size(), this->m_init_iou_thr, matches, unmatched_tracked, unmatched_detections);
@@ -471,8 +464,6 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     update_unmatches(unconfirmed_pool, activated_stracks, lost_stracks, new_stracks);
 
 
-    printf(" initialize new tracks\n");
-
     //******************************************************************
     // Step 5: Init new stracks
     //******************************************************************
@@ -485,12 +476,11 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     //******************************************************************
     remove_duplicate_stracks_custom( activated_stracks,m_shmp->_fakeThreshold);
 
-    printf(" update_trackmode\n");
     //******************************************************************
     // Step 7: update tracking mode
     //******************************************************************
     update_trackmode(activated_stracks,lost_stracks,new_stracks);
-    printf(" update_trackmode finished\n");
+
 
     //******************************************************************
     // Step 8: Update Database
@@ -526,7 +516,6 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     for (uint i = 0; i < this->m_tracked_stracks.size(); i++)
         output_stracks.emplace_back(this->m_tracked_stracks[i]);
 
-    printf("copying to shared memory\n");
     //save ouput stracksto shm
     for (uint i = 0; i < output_stracks.size(); i++)
     {   if(i<MAX_NUM_TRACKS)
