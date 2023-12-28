@@ -440,7 +440,7 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     // Step 4: Remove duplicate new detections before consider them as actual
     //******************************************************************
 
-    remove_duplicate_detections_custom(activated_stracks,detections, float iou_thresh);
+    remove_duplicate_detections_custom(activated_stracks,detections,m_shmp->_fakeThreshold);
 
 
     //******************************************************************
