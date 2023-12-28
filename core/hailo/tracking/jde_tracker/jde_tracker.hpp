@@ -229,6 +229,7 @@ private:
     std::vector<STrack> sub_stracks(std::vector<STrack> &tlista, std::vector<STrack> &tlistb);
     void remove_duplicate_stracks(std::vector<STrack> &stracksa, std::vector<STrack> &stracksb);
     void remove_duplicate_stracks_custom(std::vector<STrack> &stracksa,float iou_thresh);
+    void remove_duplicate_detections_custom(std::vector<STrack> &set_a, std::vector<STrack> &set_b, float iou_thresh);
 
     void embedding_distance(std::vector<STrack *> &tracks, std::vector<STrack> &detections, std::vector<std::vector<float>> &cost_matrix);
     void fuse_motion(std::vector<std::vector<float>> &cost_matrix, std::vector<STrack *> &tracks, std::vector<STrack> &detections, float lambda_);

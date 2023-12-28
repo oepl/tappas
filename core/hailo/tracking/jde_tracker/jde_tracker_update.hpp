@@ -146,8 +146,8 @@ inline void JDETracker::update_unmatches(std::vector<STrack *> strack_pool,
 			track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
 			track->m_tlwh[0] = track->m_kalman_rect.x;
 			track->m_tlwh[1] = track->m_kalman_rect.y;
-			printf("tracked : predicted:%d\n",m_keep_predict_frames);
-			printf("tracked : predicted:%f,%f,%f,%f\n",track->m_tlwh[0],track->m_tlwh[1],track->m_tlwh[2],track->m_tlwh[3]);
+			//printf("tracked : predicted:%d\n",m_keep_predict_frames);
+			//printf("tracked : predicted:%f,%f,%f,%f\n",track->m_tlwh[0],track->m_tlwh[1],track->m_tlwh[2],track->m_tlwh[3]);
 
 		}
                 tracked_stracks.push_back(*track); // Not over threshold, so still tracked
@@ -168,8 +168,8 @@ inline void JDETracker::update_unmatches(std::vector<STrack *> strack_pool,
 			track->m_tlwh[0] = track->m_kalman_rect.x;
 			track->m_tlwh[1] = track->m_kalman_rect.y;
 
-			printf("lost: predicted:%d\n",m_keep_predict_frames);
-			printf("lost: predicted:%f,%f,%f,%f\n",track->m_tlwh[0],track->m_tlwh[1],track->m_tlwh[2],track->m_tlwh[3]);
+			//printf("lost: predicted:%d\n",m_keep_predict_frames);
+			//printf("lost: predicted:%f,%f,%f,%f\n",track->m_tlwh[0],track->m_tlwh[1],track->m_tlwh[2],track->m_tlwh[3]);
 
 		}
 
@@ -437,7 +437,14 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
 
 
     //******************************************************************
-    // Step 4: Third association, uncomfirmed with weaker IOU
+    // Step 4: Remove duplicate new detections before consider them as actual
+    //******************************************************************
+
+    remove_duplicate_detections_custom(activated_stracks,detections, float iou_thresh);
+
+
+    //******************************************************************
+    // Step 5: Third association, uncomfirmed with weaker IOU
     //******************************************************************
     // Deal with the unconfirmed stracks, these are usually stracks with only one beginning frame
     // Use the unmatched_detections indices to get a vector of just the unmatched new detections again
@@ -465,16 +472,16 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
 
 
     //******************************************************************
-    // Step 5: Init new stracks
+    // Step 6: Init new stracks
     //******************************************************************
     // At this point, any leftover unmatched new detections are considered new object instances for tracking
     for (uint i = 0; i < unmatched_detections.size(); i++)
         new_stracks.emplace_back(detections[unmatched_detections[i]]);
 
     //******************************************************************
-    // Step 6: remove fake stracks
+    // Step 6: remove fake stracks :: temp
     //******************************************************************
-    remove_duplicate_stracks_custom( activated_stracks,m_shmp->_fakeThreshold);
+    //remove_duplicate_stracks_custom( activated_stracks,m_shmp->_fakeThreshold);
 
     //******************************************************************
     // Step 7: update tracking mode

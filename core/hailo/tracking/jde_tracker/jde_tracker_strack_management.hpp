@@ -272,3 +272,49 @@ inline void JDETracker::remove_duplicate_stracks_custom(std::vector<STrack> &str
     stracksa.clear();
     stracksa.assign(resa.begin(), resa.end());
 }
+
+/**
+ * @brief Perform a difference among active STracks and new detections,
+ *        Ending up with a set of exclusive detections.
+ *        No return is made, the vestors are changed in place.
+ * @param set_a -  std::vector<STrack>
+ *        A set of STracks
+ * @param set_b -  std::vector<STrack>
+ *        A set of New detections
+ *
+ */
+
+inline void JDETracker::remove_duplicate_detections_custom(std::vector<STrack> &set_a, std::vector<STrack> &set_b, float iou_thresh)
+{
+    std::vector<std::vector<float>> iou_distances = iou_distance(set_a, set_b);
+    float iou_dist_thresh = 1 - iou_thresh;
+
+    std::vector<bool> to_reject(set_b.size(), false);
+
+    for (uint i = 0; i < iou_distances.size(); i++)
+    {
+        for (uint j = 0; j < iou_distances[i].size(); j++)
+        {
+            if (iou_distances[i][j] < iou_dist_thresh)
+            {
+                // Mark strack in set_b for rejection
+                to_reject[j] = true;
+            }
+        }
+    }
+
+    // Create a new vector with non-rejected stracks
+    std::vector<STrack> non_rejected_set_b;
+
+    for (uint i = 0; i < set_b.size(); i++)
+    {
+        if (!to_reject[i])
+        {
+            non_rejected_set_b.push_back(set_b[i]);
+        }
+    }
+
+    // Update set_b with non-rejected stracks
+    set_b.clear();
+    set_b.assign(non_rejected_set_b.begin(), non_rejected_set_b.end());
+}
