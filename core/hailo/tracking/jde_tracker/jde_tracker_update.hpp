@@ -211,15 +211,16 @@ inline void JDETracker::update_trackmode(std::vector<STrack> &stracksa,std::vect
 			{
 				STrack sot_track=stracksa[i];
 
-				stracksa.push_back(sot_track);
-
                                 std::vector<float> xyah= sot_track.to_xyah();
+       				m_shmp->_sot_track.cX        = xyah[0]*m_shmp->_model_input_size_x;
+        			m_shmp->_sot_track.cY        = xyah[1]*m_shmp->_model_input_size_y;
+				m_shmp->_sot_track.width     = xyah[2]*xyah[3]*m_shmp->_model_input_size_x; //a*h
+				m_shmp->_sot_track.height    = xyah[3]*m_shmp->_model_input_size_y; //h
 
-        			m_shmp->_x=xyah[0];
-        			m_shmp->_y=xyah[1];
-        			m_shmp->_w=xyah[2];
-        			m_shmp->_h=xyah[3];
-				m_shmp->_state=sot_track.get_state();
+        			m_shmp->_sot_track.trackID   = sot_track.m_track_id;
+
+				m_shmp->_sot_track.classtype = (MVIGS_ObjectDetectionClassType) sot_track.m_class_id;
+
         			m_shmp->_bValidTrack=true;
 
 				if(m_shmp->_sot_method==2)
@@ -227,6 +228,7 @@ inline void JDETracker::update_trackmode(std::vector<STrack> &stracksa,std::vect
             			    stracksa.clear();
 				    stracksb.clear();
 				    stracksc.clear();
+				    stracksa.push_back(sot_track);
 				}
 				return;
 			}
@@ -239,21 +241,21 @@ inline void JDETracker::update_trackmode(std::vector<STrack> &stracksa,std::vect
 			{
 				STrack sot_track=stracksb[i];
 
-				stracksb.push_back(sot_track);
-			
                                 std::vector<float> xyah= sot_track.to_xyah();
-        			m_shmp->_x=xyah[0];
-        			m_shmp->_y=xyah[1];
-        			m_shmp->_w=xyah[2];
-        			m_shmp->_h=xyah[3];
-				m_shmp->_state=sot_track.get_state();
+				m_shmp->_sot_track.cX        = xyah[0]*m_shmp->_model_input_size_x;
+        			m_shmp->_sot_track.cY        = xyah[1]*m_shmp->_model_input_size_y;
+				m_shmp->_sot_track.width     = xyah[2]*xyah[3]*m_shmp->_model_input_size_x; //a*h
+				m_shmp->_sot_track.height    = xyah[3]*m_shmp->_model_input_size_y; //h
+        			m_shmp->_sot_track.trackID   = sot_track.m_track_id;
+				m_shmp->_sot_track.classtype = (MVIGS_ObjectDetectionClassType) sot_track.m_class_id;
         			m_shmp->_bValidTrack=true;
-				
+
 				if(m_shmp->_sot_method==2)
 				{
             			    stracksa.clear();
 				    stracksb.clear();
 				    stracksc.clear();
+				    stracksb.push_back(sot_track);
 				}
 				return;
 			}
@@ -533,12 +535,12 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
 	{
 		STrack temp_track=output_stracks[i];
         	std::vector<float> xyah= temp_track.to_xyah();
-		m_shmp->_tracks[i].topLeftX  = xyah[0]*m_shmp->_model_input_size_x;//tlx
-        	m_shmp->_tracks[i].topLeftY  = xyah[1]*m_shmp->_model_input_size_y;//tly
+		m_shmp->_tracks[i].cX        = xyah[0]*m_shmp->_model_input_size_x;//cx
+        	m_shmp->_tracks[i].cY        = xyah[1]*m_shmp->_model_input_size_y;//cy
 		m_shmp->_tracks[i].width     = xyah[2]*xyah[3]*m_shmp->_model_input_size_x; //a*h
 		m_shmp->_tracks[i].height    = xyah[3]*m_shmp->_model_input_size_y; //h
         	m_shmp->_tracks[i].trackID   = temp_track.m_track_id;
-		m_shmp->_tracks[i].classtype =(MVIGS_ObjectDetectionClassType) temp_track.m_class_id;
+		m_shmp->_tracks[i].classtype = (MVIGS_ObjectDetectionClassType) temp_track.m_class_id;
 	}		
      }
 

@@ -54,8 +54,8 @@ typedef enum
 
 struct MVIGS_ObjectTrackingResultsType
 {
-   int topLeftX;
-   int topLeftY;
+   int cX;
+   int cY;
    int width;
    int height;
    MVIGS_ObjectDetectionClassType classtype;
@@ -64,11 +64,7 @@ struct MVIGS_ObjectTrackingResultsType
 
 #define SHM_KEY 0x1234
 struct shmseg {
-   int _state=-1;
-   float _x=0;
-   float _y=0;
-   float _w=0;
-   float _h=0;
+   MVIGS_ObjectTrackingResultsType _sot_track;
    int _selectedTarget=-1;
    bool _bValidTrack=false;
    MVIGS_ObjectTrackingResultsType _tracks[MAX_NUM_TRACKS];
