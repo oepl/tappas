@@ -210,18 +210,24 @@ inline void JDETracker::update_trackmode(std::vector<STrack> &stracksa,std::vect
         		if(stracksa[i].m_track_id==m_shmp->_selectedTarget)
 			{
 				STrack sot_track=stracksa[i];
-            			stracksa.clear();
-				stracksb.clear();
-				stracksc.clear();
+
 				stracksa.push_back(sot_track);
 
                                 std::vector<float> xyah= sot_track.to_xyah();
+
         			m_shmp->_x=xyah[0];
         			m_shmp->_y=xyah[1];
         			m_shmp->_w=xyah[2];
         			m_shmp->_h=xyah[3];
 				m_shmp->_state=sot_track.get_state();
         			m_shmp->_bValidTrack=true;
+
+				if(m_shmp->_sot_method==2)
+				{
+            			    stracksa.clear();
+				    stracksb.clear();
+				    stracksc.clear();
+				}
 				return;
 			}
 		}
@@ -232,9 +238,7 @@ inline void JDETracker::update_trackmode(std::vector<STrack> &stracksa,std::vect
         		if(stracksb[i].m_track_id==m_shmp->_selectedTarget)
 			{
 				STrack sot_track=stracksb[i];
-            			stracksa.clear();
-				stracksb.clear();
-				stracksc.clear();
+
 				stracksb.push_back(sot_track);
 			
                                 std::vector<float> xyah= sot_track.to_xyah();
@@ -244,12 +248,25 @@ inline void JDETracker::update_trackmode(std::vector<STrack> &stracksa,std::vect
         			m_shmp->_h=xyah[3];
 				m_shmp->_state=sot_track.get_state();
         			m_shmp->_bValidTrack=true;
+				
+				if(m_shmp->_sot_method==2)
+				{
+            			    stracksa.clear();
+				    stracksb.clear();
+				    stracksc.clear();
+				}
 				return;
 			}
 		}
-            	stracksa.clear();
-		stracksb.clear();
-	        stracksc.clear();
+
+		m_shmp->_bValidTrack=false; //Note:: so track is lost permanently -couldnt find the sot either in active or in lost tracks
+
+		if(m_shmp->_sot_method==2)
+		{
+            	   stracksa.clear();
+		   stracksb.clear();
+		   stracksc.clear();
+		}
 	}
 	else
 	{
@@ -504,26 +521,13 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     //update no of active tracks
     m_shmp->_numTracks=this->m_tracked_stracks.size();
     
-    //if  sot track is permanently lost report invalid track
-    if(m_shmp->_selectedTarget!=-1 && m_shmp->_numTracks==0)
-    {
-	 m_sot_counter++;
-         if(m_sot_counter>m_keep_lost_frames)
-         {
-            m_shmp->_bValidTrack=false;
-    	 }
-    }
-    else
-    {
-        m_sot_counter=0; 
-    }
-
+    //pack all active tracks to output
     std::vector<STrack> output_stracks;
     output_stracks.reserve(this->m_tracked_stracks.size());
     for (uint i = 0; i < this->m_tracked_stracks.size(); i++)
         output_stracks.emplace_back(this->m_tracked_stracks[i]);
 
-    //save ouput stracksto shm
+    //save ouput stracks to shm
     for (uint i = 0; i < output_stracks.size(); i++)
     {   if(i<MAX_NUM_TRACKS)
 	{

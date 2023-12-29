@@ -88,6 +88,7 @@ struct shmseg {
    float _iou_scale_factor2 = 1.0;
    bool _iou_scale1_enable  = false;
    bool _iou_scale2_enable  = false;
+   int _sot_method = 1;
 };
 class JDETracker
 {
@@ -150,7 +151,10 @@ public:
 	{
 	    printf("JDETracker Shared memory attach success\n");
 	}
-	printf("tracked,lost,new,predicted:%d,%d,%d,%d\n",m_keep_tracked_frames,m_keep_lost_frames,m_keep_new_frames,m_keep_predict_frames);
+	printf("HailoTracker: tracked,lost,new,predicted:%d,%d,%d,%d\n",m_keep_tracked_frames,m_keep_lost_frames,m_keep_new_frames,m_keep_predict_frames);
+	printf("HailoTracker: init_iou_thr,iou_thr,fakeThreshold:%f,%f,%f\n", m_init_iou_thr,m_iou_thr,m_shmp->_fakeThreshold);
+	printf("HailoTracker:  _iou_scale_factor1, _iou_scale_factor2,_iou_scale1_enable,_iou_scale2_enable :%f,%f,%f,%f\n", m_shmp-> _iou_scale_factor1,m_shmp-> _iou_scale_factor2,m_shmp->_iou_scale1_enable,m_shmp->_iou_scale2_enable);
+
     }
 
     // Destructor
