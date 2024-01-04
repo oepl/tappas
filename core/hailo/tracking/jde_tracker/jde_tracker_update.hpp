@@ -460,6 +460,7 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     //******************************************************************
 
     remove_duplicate_detections_custom(activated_stracks,detections,m_shmp->_fakeThreshold);
+    remove_duplicate_detections_custom(lost_stracks,detections,m_shmp->_fakeThreshold);
 
 
     //******************************************************************

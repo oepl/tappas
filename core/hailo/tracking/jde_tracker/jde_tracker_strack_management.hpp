@@ -298,7 +298,10 @@ inline void JDETracker::remove_duplicate_detections_custom(std::vector<STrack> &
             if (iou_distances[i][j] < iou_dist_thresh)
             {
                 // Mark strack in set_b for rejection
-                to_reject[j] = true;
+		if(set_a[i].m_class_id==set_b[i].m_class_id)
+		{
+                	to_reject[j] = true;
+		}
             }
         }
     }
