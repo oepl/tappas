@@ -143,12 +143,8 @@ inline void JDETracker::update_unmatches(std::vector<STrack *> strack_pool,
 		if (this->m_frame_id - track->end_frame() < this->m_keep_predict_frames)
 		{
 			track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
-			track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
 			track->m_tlwh[0] = track->m_kalman_rect.x;
 			track->m_tlwh[1] = track->m_kalman_rect.y;
-			//printf("tracked : predicted:%d\n",m_keep_predict_frames);
-			//printf("tracked : predicted:%f,%f,%f,%f\n",track->m_tlwh[0],track->m_tlwh[1],track->m_tlwh[2],track->m_tlwh[3]);
-
 		}
                 tracked_stracks.push_back(*track); // Not over threshold, so still tracked
             }
@@ -164,13 +160,8 @@ inline void JDETracker::update_unmatches(std::vector<STrack *> strack_pool,
 		if (this->m_frame_id - track->end_frame() < this->m_keep_predict_frames)
 		{
 			track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
-			track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
 			track->m_tlwh[0] = track->m_kalman_rect.x;
 			track->m_tlwh[1] = track->m_kalman_rect.y;
-
-			//printf("lost: predicted:%d\n",m_keep_predict_frames);
-			//printf("lost: predicted:%f,%f,%f,%f\n",track->m_tlwh[0],track->m_tlwh[1],track->m_tlwh[2],track->m_tlwh[3]);
-
 		}
 
                 lost_stracks.push_back(*track); // Not over threshold, so still lost
@@ -460,8 +451,6 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     //******************************************************************
 
     remove_duplicate_detections_custom(activated_stracks,detections,m_shmp->_fakeThreshold);
-    remove_duplicate_detections_custom(lost_stracks,detections,m_shmp->_fakeThreshold);
-
 
     //******************************************************************
     // Step 5: Third association, uncomfirmed with weaker IOU
