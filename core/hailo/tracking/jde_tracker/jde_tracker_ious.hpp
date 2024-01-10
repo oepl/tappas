@@ -306,58 +306,6 @@ inline std::vector<std::vector<float>> JDETracker::iou_distance(std::vector<STra
     return cost_matrix;
 }
 
-
-/**
- * @brief Calculates the ioma distances (1 - iou) between two sets of STracks
- *        Distances are returned as a dense graph.
- * 
- * @param atracks  -  std::vector<STrack>
- *        A set of STracks
- *
- * @param btracks  -  std::vector<STrack>
- *        A set of STracks
- *
- * @return std::vector<std::vector<float>> 
- *         A dense graph of ioma distances (1 - ioma), of shape atracks.size() x btracks.size()
- *         For interpreting distances - 1 is far, 0 is close
- */
-
-inline std::vector<std::vector<float>> JDETracker::ioma_distance(std::vector<STrack> &atracks, std::vector<STrack> &btracks)
-{
-    if ( (atracks.size() == 0) | (btracks.size() == 0) )
-    {
-        std::vector<std::vector<float>> cost_matrix;
-        return cost_matrix;
-    }
-
-    // Prepare a set of bounding boxes from each of the two sets of STracks
-    std::vector<std::vector<float>> atlbrs( atracks.size() , std::vector<float> (4));
-    std::vector<std::vector<float>> btlbrs( btracks.size() , std::vector<float> (4));
-    for (uint i = 0; i < atracks.size(); i++)
-    {
-        atlbrs[i] = atracks[i].tlbr();
-    }
-    for (uint i = 0; i < btracks.size(); i++)
-    {
-        btlbrs[i] = btracks[i].tlbr();
-    }
-
-    // Get a dense graph of the ious between all pairs of boxes fromt he two sets
-    std::vector<std::vector<float>> _iomas = iomas(atlbrs, btlbrs);
-
-    // The cost matrix will have the same shape as the _iomas graph
-    std::vector<std::vector<float>> cost_matrix( atracks.size() , std::vector<float> (btracks.size()));
-    for (uint i = 0; i < _iomas.size(); i++)
-    {
-        for (uint j = 0; j < _iomas[i].size(); j++)
-        {
-            cost_matrix[i][j] = 1 - _iomas[i][j];
-        }
-    }
-
-    return cost_matrix;
-}
-
 /**
  * @brief Calculate the intersection over minimum area between two sets of bounding boxes.
  *        Ioma is calculated and filled into a dense graph.
@@ -411,4 +359,56 @@ inline std::vector<std::vector<float>> iomas(std::vector<std::vector<float>> &at
     }
 
     return iomas;
+}
+
+
+/**
+ * @brief Calculates the ioma distances (1 - iou) between two sets of STracks
+ *        Distances are returned as a dense graph.
+ * 
+ * @param atracks  -  std::vector<STrack>
+ *        A set of STracks
+ *
+ * @param btracks  -  std::vector<STrack>
+ *        A set of STracks
+ *
+ * @return std::vector<std::vector<float>> 
+ *         A dense graph of ioma distances (1 - ioma), of shape atracks.size() x btracks.size()
+ *         For interpreting distances - 1 is far, 0 is close
+ */
+
+inline std::vector<std::vector<float>> JDETracker::ioma_distance(std::vector<STrack> &atracks, std::vector<STrack> &btracks)
+{
+    if ( (atracks.size() == 0) | (btracks.size() == 0) )
+    {
+        std::vector<std::vector<float>> cost_matrix;
+        return cost_matrix;
+    }
+
+    // Prepare a set of bounding boxes from each of the two sets of STracks
+    std::vector<std::vector<float>> atlbrs( atracks.size() , std::vector<float> (4));
+    std::vector<std::vector<float>> btlbrs( btracks.size() , std::vector<float> (4));
+    for (uint i = 0; i < atracks.size(); i++)
+    {
+        atlbrs[i] = atracks[i].tlbr();
+    }
+    for (uint i = 0; i < btracks.size(); i++)
+    {
+        btlbrs[i] = btracks[i].tlbr();
+    }
+
+    // Get a dense graph of the ious between all pairs of boxes fromt he two sets
+    std::vector<std::vector<float>> _iomas = iomas(atlbrs, btlbrs);
+
+    // The cost matrix will have the same shape as the _iomas graph
+    std::vector<std::vector<float>> cost_matrix( atracks.size() , std::vector<float> (btracks.size()));
+    for (uint i = 0; i < _iomas.size(); i++)
+    {
+        for (uint j = 0; j < _iomas[i].size(); j++)
+        {
+            cost_matrix[i][j] = 1 - _iomas[i][j];
+        }
+    }
+
+    return cost_matrix;
 }
