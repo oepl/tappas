@@ -283,25 +283,24 @@ inline void JDETracker::remove_duplicate_stracks_custom(std::vector<STrack> &str
  *        A set of New detections
  *
  */
-
-inline void JDETracker::remove_duplicate_detections_custom(std::vector<STrack> &set_a, std::vector<STrack> &set_b, float iou_thresh)
+inline void JDETracker::remove_duplicate_detections_custom(std::vector<STrack> &set_a, std::vector<STrack> &set_b, float iomas_thresh)
 {
-    std::vector<std::vector<float>> iou_distances = iou_distance(set_a, set_b);
-    float iou_dist_thresh = 1 - iou_thresh;
+    std::vector<std::vector<float>> ioma_distances = ioma_distance(set_a, set_b);
+    float ioma_dist_thresh = iomas_thresh;
 
     std::vector<bool> to_reject(set_b.size(), false);
 
-    for (uint i = 0; i < iou_distances.size(); i++)
+    for (uint i = 0; i < ioma_distances.size(); i++)
     {
-        for (uint j = 0; j < iou_distances[i].size(); j++)
+        for (uint j = 0; j < ioma_distances[i].size(); j++)
         {
-            if (iou_distances[i][j] < iou_dist_thresh)
+            if (ioma_distances[i][j] < ioma_dist_thresh)
             {
                 // Mark strack in set_b for rejection
-		if(set_a[i].m_class_id==set_b[j].m_class_id)
-		{
-                	to_reject[j] = true;
-		}
+                if (set_a[i].m_class_id == set_b[j].m_class_id)
+                {
+                    to_reject[j] = true;
+                }
             }
         }
     }
@@ -320,4 +319,54 @@ inline void JDETracker::remove_duplicate_detections_custom(std::vector<STrack> &
     // Update set_b with non-rejected stracks
     set_b.clear();
     set_b.assign(non_rejected_set_b.begin(), non_rejected_set_b.end());
+}
+
+inline void JDETracker::remove_duplicates_within_set(std::vector<STrack> &detections, float ioma_thresh)
+{
+    std::vector<std::vector<float>> ioma_distances = ioma_distance(detections, detections);
+
+    float ioma_dist_thresh = ioma_thresh;
+
+    std::vector<bool> to_reject(detections.size(), false);
+
+    for (uint i = 0; i < ioma_distances.size(); i++)
+    {
+        for (uint j = i + 1; j < ioma_distances[i].size(); j++)
+        {
+            if (ioma_distances[i][j] < ioma_dist_thresh)
+            {
+                // Check if either element A or element B is already marked for rejection
+                if (!to_reject[i] && !to_reject[j])
+                {
+                    // Mark the element with the higher index for rejection
+                    if (i < j)
+                    {
+                        to_reject[j] = true;  // Mark element B for rejection
+                    }
+                    else
+                    {
+                        to_reject[i] = true;  // Mark element A for rejection
+                    }
+                }
+
+                // Break out of the inner loop once one element is marked for rejection
+                break;
+            }
+        }
+    }
+
+    // Create a new vector with non-rejected detections
+    std::vector<STrack> non_rejected_detections;
+
+    for (uint i = 0; i < detections.size(); i++)
+    {
+        if (!to_reject[i])
+        {
+            non_rejected_detections.push_back(detections[i]);
+        }
+    }
+
+    // Update the original vector with non-rejected detections
+    detections.clear();
+    detections.assign(non_rejected_detections.begin(), non_rejected_detections.end());
 }

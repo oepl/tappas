@@ -450,7 +450,15 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     // Step 4: Remove duplicate new detections before consider them as actual
     //******************************************************************
 
-    remove_duplicate_detections_custom(activated_stracks,detections,m_shmp->_fakeThreshold);
+    if( activated_stracks.size()!=0)
+    {
+    	remove_duplicate_detections_custom(activated_stracks,detections,m_shmp->_fakeThreshold);
+    }
+    else
+    {
+    	remove_duplicates_within_set(detections,m_shmp->_fakeThreshold);
+    }
+
 
     //******************************************************************
     // Step 5: Third association, uncomfirmed with weaker IOU
