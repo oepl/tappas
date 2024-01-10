@@ -222,6 +222,8 @@ private:
     std::vector<std::vector<float>> iou_distance(std::vector<STrack *> &atracks, std::vector<STrack> &btracks);
     std::vector<std::vector<float>> iou_distance_custom(std::vector<STrack *> &atracks, std::vector<STrack> &btracks,float scale);
     std::vector<std::vector<float>> iou_distance(std::vector<STrack> &atracks, std::vector<STrack> &btracks);
+    std::vector<std::vector<float>> ioma_distance(std::vector<STrack> &atracks, std::vector<STrack> &btracks);
+
 
     std::vector<STrack *> joint_strack_pointers(std::vector<STrack *> &tlista, std::vector<STrack *> &tlistb);
     std::vector<STrack *> joint_strack_pointers(std::vector<STrack> &tlista, std::vector<STrack> &tlistb);
@@ -230,6 +232,7 @@ private:
     void remove_duplicate_stracks(std::vector<STrack> &stracksa, std::vector<STrack> &stracksb);
     void remove_duplicate_stracks_custom(std::vector<STrack> &stracksa,float iou_thresh);
     void remove_duplicate_detections_custom(std::vector<STrack> &set_a, std::vector<STrack> &set_b, float iou_thresh);
+    void remove_duplicates_within_set(std::vector<STrack> &detections, float ioma_thresh);
 
     void embedding_distance(std::vector<STrack *> &tracks, std::vector<STrack> &detections, std::vector<std::vector<float>> &cost_matrix);
     void fuse_motion(std::vector<std::vector<float>> &cost_matrix, std::vector<STrack *> &tracks, std::vector<STrack> &detections, float lambda_);

@@ -283,6 +283,7 @@ inline void JDETracker::remove_duplicate_stracks_custom(std::vector<STrack> &str
  *        A set of New detections
  *
  */
+
 inline void JDETracker::remove_duplicate_detections_custom(std::vector<STrack> &set_a, std::vector<STrack> &set_b, float iomas_thresh)
 {
     std::vector<std::vector<float>> ioma_distances = ioma_distance(set_a, set_b);
