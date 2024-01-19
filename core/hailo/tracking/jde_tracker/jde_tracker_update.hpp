@@ -142,9 +142,18 @@ inline void JDETracker::update_unmatches(std::vector<STrack *> strack_pool,
             {
 		if (this->m_frame_id - track->end_frame() < this->m_keep_predict_frames)
 		{
-			track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
-			track->m_tlwh[0] = track->m_kalman_rect.x;
-			track->m_tlwh[1] = track->m_kalman_rect.y;
+			std::vector<float> xyah= track->to_xyah();
+
+ 			if(    (xyah[0] < m_shmp->_predictable_region) 
+			    && (xyah[0] > (1-m_shmp->_predictable_region)) 
+                            && (xyah[1] < m_shmp->_predictable_region) 
+                            && (xyah[1] > (1-m_shmp->_predictable_region))
+                          )
+			{
+				track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
+				track->m_tlwh[0] = track->m_kalman_rect.x;
+				track->m_tlwh[1] = track->m_kalman_rect.y;
+			}
 		}
                 tracked_stracks.push_back(*track); // Not over threshold, so still tracked
             }
@@ -159,9 +168,18 @@ inline void JDETracker::update_unmatches(std::vector<STrack *> strack_pool,
             {
 		if (this->m_frame_id - track->end_frame() < this->m_keep_predict_frames)
 		{
-			track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
-			track->m_tlwh[0] = track->m_kalman_rect.x;
-			track->m_tlwh[1] = track->m_kalman_rect.y;
+  			std::vector<float> xyah= track->to_xyah();
+
+ 			if(    (xyah[0] < m_shmp->_predictable_region) 
+			    && (xyah[0] > (1-m_shmp->_predictable_region)) 
+                            && (xyah[1] < m_shmp->_predictable_region) 
+                            && (xyah[1] > (1-m_shmp->_predictable_region))
+                          )
+			{
+				track->m_kalman.Predict(track->m_kalman_rect, true);//prediction
+				track->m_tlwh[0] = track->m_kalman_rect.x;
+				track->m_tlwh[1] = track->m_kalman_rect.y;
+			}
 		}
 
                 lost_stracks.push_back(*track); // Not over threshold, so still lost
