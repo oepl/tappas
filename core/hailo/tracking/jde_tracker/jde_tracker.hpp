@@ -86,6 +86,9 @@ struct shmseg {
    bool _iou_scale2_enable  = false;
    int _sot_method = 1;
    float _predictable_region = 0.9;
+   float _stateCov_x;
+   float _stateCov_Vx;
+   float _measureCov_zx;
 };
 class JDETracker
 {
@@ -152,7 +155,7 @@ public:
 	printf("HailoTracker: init_iou_thr,iou_thr,fakeThreshold:%f,%f,%f\n", m_init_iou_thr,m_iou_thr,m_shmp->_fakeThreshold);
 	printf("HailoTracker:  _iou_scale_factor1, _iou_scale_factor2,_iou_scale1_enable,_iou_scale2_enable :%f,%f,%d,%d\n", m_shmp-> _iou_scale_factor1,m_shmp-> _iou_scale_factor2,(int)m_shmp->_iou_scale1_enable,(int)m_shmp->_iou_scale2_enable);
 	printf("HailoTracker: predictable region: %f\n",m_shmp->_predictable_region);
-	
+	printf("HailoTracker: state covariance,measurement covaraiance coefficients: %f,%f,%f\n",m_shmp->_stateCov_x,m_shmp->_stateCov_Vx,m_shmp->_measureCov_zx);
 
     }
 

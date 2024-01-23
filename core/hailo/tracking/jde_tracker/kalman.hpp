@@ -30,67 +30,13 @@ class kalman
 public:
 	kalman()
 	{
-		cv::Mat A;
-		cv::Mat H;
-		cv::Mat P;
-		cv::Mat Q;
-		cv::Mat R;
-
-		_stateSize = 4;
-		_measurementSize = 2;
-		_controlSize = 0;
-		_type = CV_32F;
-
-		//state vector
-		A = cv::Mat::zeros(cv::Size(_stateSize, _stateSize), _type);
-		A.at<float>(0) = 1.0f;
-		A.at<float>(1) = 1.0f;
-		A.at<float>(5) = 1.0f;
-		A.at<float>(10) = 1.0f;
-		A.at<float>(11) = 1.0f;
-		A.at<float>(15) = 1.0f;
-
-		//measurement vector
-		H = cv::Mat::zeros(cv::Size(_stateSize, _measurementSize), _type);
-		H.at<float>(0) = 1.0f;
-		H.at<float>(6) = 1.0f;
-
-		//state uncertinity matrix
-		P = cv::Mat::zeros(cv::Size(_stateSize, _stateSize), _type);
-		P.at<float>(0) = 10e5f;
-		P.at<float>(5) = 10e5f;
-		P.at<float>(10) = 10e5f;
-		P.at<float>(15) = 10e5f;
-
-		//state covariance matrix
-		Q = cv::Mat::zeros(cv::Size(_stateSize, _stateSize), _type);
-		Q.at<float>(0) = 25.0f;
-		Q.at<float>(5) = 10.0f;
-		Q.at<float>(10) = 25.0f;
-		Q.at<float>(15) = 10.0f;
-
-		//measurement covariance matrix
-		R = cv::Mat::zeros(cv::Size(_measurementSize, _measurementSize), _type);
-		R.at<float>(0) = 25000.0f;
-		R.at<float>(3) = 25000.0f;
-
-		_k.init(_stateSize, _measurementSize, _controlSize, _type);
-
-		_state = cv::Mat::zeros(_stateSize, 1, _type);
-		_measurement = cv::Mat::zeros(_measurementSize, 1, _type);
-
-		A.copyTo(_k.transitionMatrix);
-		H.copyTo(_k.measurementMatrix);
-		P.copyTo(_k.errorCovPre);
-		Q.copyTo(_k.processNoiseCov);
-		R.copyTo(_k.measurementNoiseCov);
 	}
 			
 	~kalman()
 	{
 	}
-
-	void Init(cv::Rect2f bbox)
+	
+	void Init(cv::Rect2f bbox,float stateCov_x,float stateCov_Vx,float measureCov_zx)
 	{
 		if (!_initialized)
 		{
@@ -99,6 +45,62 @@ public:
 			icentre.y = bbox.y + bbox.height / 2.0;
 			if (icentre.x != 0 || icentre.y != 0) //this ensures valid input
 			{
+				cv::Mat A;
+				cv::Mat H;
+				cv::Mat P;
+				cv::Mat Q;
+				cv::Mat R;
+
+				_stateSize = 4;
+				_measurementSize = 2;
+				_controlSize = 0;
+				_type = CV_32F;
+
+				//state vector
+				A = cv::Mat::zeros(cv::Size(_stateSize, _stateSize), _type);
+				A.at<float>(0) = 1.0f;
+				A.at<float>(1) = 1.0f;
+				A.at<float>(5) = 1.0f;
+				A.at<float>(10) = 1.0f;
+				A.at<float>(11) = 1.0f;
+				A.at<float>(15) = 1.0f;
+
+				//measurement vector
+				H = cv::Mat::zeros(cv::Size(_stateSize, _measurementSize), _type);
+				H.at<float>(0) = 1.0f;
+				H.at<float>(6) = 1.0f;
+
+				//state uncertinity matrix
+				P = cv::Mat::zeros(cv::Size(_stateSize, _stateSize), _type);
+				P.at<float>(0)  = 10e5f;
+				P.at<float>(5)  = 10e5f;
+				P.at<float>(10) = 10e5f;
+				P.at<float>(15) = 10e5f;
+
+				//state covariance matrix -Note: covariance coefficents are same for x,y and also same for Vx and Vy
+				Q = cv::Mat::zeros(cv::Size(_stateSize, _stateSize), _type);
+				Q.at<float>(0)  = stateCov_x;  //25.0f
+				Q.at<float>(5)  = stateCov_Vx; //10.0f
+				Q.at<float>(10) = stateCov_x;  //25.0f 
+				Q.at<float>(15) = stateCov_Vx; //10.0f
+
+				//measurement covariance matrix -Note: covariance coefficents are same for zx,zy
+				R = cv::Mat::zeros(cv::Size(_measurementSize, _measurementSize), _type);
+				R.at<float>(0) = measureCov_zx; //25000.0f
+				R.at<float>(3) = measureCov_zx; //25000.0f
+
+				_k.init(_stateSize, _measurementSize, _controlSize, _type);
+
+				_state = cv::Mat::zeros(_stateSize, 1, _type);
+				_measurement = cv::Mat::zeros(_measurementSize, 1, _type);
+
+				A.copyTo(_k.transitionMatrix);
+				H.copyTo(_k.measurementMatrix);
+				P.copyTo(_k.errorCovPre);
+				Q.copyTo(_k.processNoiseCov);
+				R.copyTo(_k.measurementNoiseCov);
+		
+				//initialize state and measurement matrix
 				_measurement.at<float>(0) = icentre.x;
 				_measurement.at<float>(1) = icentre.y;
 

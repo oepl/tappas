@@ -98,7 +98,7 @@ inline void JDETracker::update_matches(std::vector<std::pair<int, int>> matches,
             track->re_activate(*det, this->m_frame_id, false, this->m_keep_past_metadata);
             break;
         case TrackState::New: // The tracklet is brand new, so activate
-            track->activate(&this->m_kalman_filter, this->m_frame_id);
+            track->activate(&this->m_kalman_filter, this->m_frame_id,m_shmp->_stateCov_x,m_shmp->_stateCov_Vx,m_shmp->_measureCov_zx);
             break;
         }
         activated_stracks.push_back(*track);

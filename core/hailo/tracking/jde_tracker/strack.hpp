@@ -335,7 +335,7 @@ public:
      * @param frame_id  -  int
      *        The current frame it, this becomes the "starting" frame id.
      */
-    void activate(KalmanFilter *kalman_filter, int frame_id)
+    void activate(KalmanFilter *kalman_filter, int frame_id,float stateCov_x,float stateCov_Vx,float measureCov_zx)
     {
         this->m_kalman_filter = kalman_filter;
         this->m_track_id = this->next_id();
@@ -353,7 +353,7 @@ public:
 	this->m_kalman_rect.y = this->tmp_location_tlwh[1];
 	this->m_kalman_rect.width =  this->tmp_location_tlwh[2];
 	this->m_kalman_rect.height = this->tmp_location_tlwh[3];
-	this->m_kalman.Init(this->m_kalman_rect);//initialize
+	this->m_kalman.Init(this->m_kalman_rect,stateCov_x,stateCov_Vx,measureCov_zx);//initialize
 
         update_tlwh();
 
