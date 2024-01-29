@@ -516,7 +516,7 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
 		m_shmp->_tracks[i].width     = xyah[2]*xyah[3]*m_shmp->_model_input_size_x; //a*h
 		m_shmp->_tracks[i].height    = xyah[3]*m_shmp->_model_input_size_y; //h
         	m_shmp->_tracks[i].trackID   = temp_track.m_track_id;
-                m_shmp->_tracks[i].trackState= temp_track.get_state();
+                m_shmp->_tracks[i].trackState= (TrackState)temp_track.get_state();
 		m_shmp->_tracks[i].classtype = (MVIGS_ObjectDetectionClassType) temp_track.m_class_id;
 	}		
      }
