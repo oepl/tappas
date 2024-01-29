@@ -227,9 +227,10 @@ inline void JDETracker::update_trackmode(std::vector<STrack> &stracksa,std::vect
 				m_shmp->_sot_track.height    = xyah[3]*m_shmp->_model_input_size_y; //h
 
         			m_shmp->_sot_track.trackID   = sot_track.m_track_id;
+				m_shmp->_sot_track.trackState= TrackState::Tracked;
 
 				m_shmp->_sot_track.classtype = (MVIGS_ObjectDetectionClassType) sot_track.m_class_id;
-
+				
         			m_shmp->_bValidTrack=true;
 
 				if(m_shmp->_sot_method==2)
@@ -256,6 +257,7 @@ inline void JDETracker::update_trackmode(std::vector<STrack> &stracksa,std::vect
 				m_shmp->_sot_track.width     = xyah[2]*xyah[3]*m_shmp->_model_input_size_x; //a*h
 				m_shmp->_sot_track.height    = xyah[3]*m_shmp->_model_input_size_y; //h
         			m_shmp->_sot_track.trackID   = sot_track.m_track_id;
+				m_shmp->_sot_track.trackState= TrackState::Lost;
 				m_shmp->_sot_track.classtype = (MVIGS_ObjectDetectionClassType) sot_track.m_class_id;
         			m_shmp->_bValidTrack=true;
 
@@ -282,48 +284,6 @@ inline void JDETracker::update_trackmode(std::vector<STrack> &stracksa,std::vect
 	else
 	{
         	m_shmp->_bValidTrack=false;
-		if(m_shmp->_reticle_track_enable)
-		{
-        		int nearest_track_id=-1;
-        		int min_distance=10000;//set to high value
-                        int current_distance=10000;
-                        int reticle_rect_xc=m_shmp->_reticle_rect_x+m_shmp->_reticle_rect_w/2;
- 			int reticle_rect_yc=m_shmp->_reticle_rect_y+m_shmp->_reticle_rect_h/2;
-                        int detection_box_xc=-1;
-			int detection_box_yc=-1;
-
-        		for (uint i = 0; i < stracksa.size(); i++)
-    			{
-				std::vector<float> xyah= stracksa[i].to_xyah();
-                                detection_box_xc = xyah[0]*m_shmp->_model_input_size_x;
-				detection_box_yc = xyah[1]*m_shmp->_model_input_size_y;
-         
-                		current_distance=std::min(std::abs(reticle_rect_xc-detection_box_xc), std::abs(reticle_rect_yc-detection_box_yc)); //min of xd,yd
-                		if(current_distance<min_distance)
-                		{
-                     			min_distance=current_distance;
-                     			nearest_track_id=stracksa[i].m_track_id;
-                		}
-			}
-			for (uint i = 0; i < stracksb.size(); i++)
-    			{
-				std::vector<float> xyah= stracksb[i].to_xyah();
-                                detection_box_xc = xyah[0]*m_shmp->_model_input_size_x;
-				detection_box_yc = xyah[1]*m_shmp->_model_input_size_y;
-
-                		current_distance=std::min(std::abs(reticle_rect_xc-detection_box_xc), std::abs(reticle_rect_yc-detection_box_yc)); //min of xd,yd
-                		if(current_distance<min_distance)
-                		{
-                    			min_distance=current_distance;
-                    			nearest_track_id=stracksb[i].m_track_id;
-                		}
-			}
-        		if(min_distance<m_shmp->_reticle_rect_w/2 || min_distance<m_shmp->_reticle_rect_h/2)
-        		{
-				m_shmp->_selectedTarget=nearest_track_id;
-				m_shmp->_reticle_track_enable=false;
-        		}
-		}
 	}
 	return;
 }
@@ -556,6 +516,7 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
 		m_shmp->_tracks[i].width     = xyah[2]*xyah[3]*m_shmp->_model_input_size_x; //a*h
 		m_shmp->_tracks[i].height    = xyah[3]*m_shmp->_model_input_size_y; //h
         	m_shmp->_tracks[i].trackID   = temp_track.m_track_id;
+                m_shmp->_tracks[i].trackState= temp_track.get_state();
 		m_shmp->_tracks[i].classtype = (MVIGS_ObjectDetectionClassType) temp_track.m_class_id;
 	}		
      }

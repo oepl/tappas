@@ -60,6 +60,7 @@ struct MVIGS_ObjectTrackingResultsType
    int height;
    MVIGS_ObjectDetectionClassType classtype;
    int trackID;
+   TrackState trackState;
 };
 
 #define SHM_KEY 0x1234
@@ -75,11 +76,6 @@ struct shmseg {
    unsigned int _model_input_size_x=1280; //1280
    unsigned int _model_input_size_y=768; //768
    int _detect_counter=0;
-   int _reticle_rect_x=-1;
-   int _reticle_rect_y=-1;
-   int _reticle_rect_w=-1;
-   int _reticle_rect_h=-1;
-   bool _reticle_track_enable=false;
    float _iou_scale_factor1 = 0.5;
    float _iou_scale_factor2 = 1.0;
    bool _iou_scale1_enable  = false;
