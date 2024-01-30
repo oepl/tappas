@@ -348,6 +348,12 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     //embedding_distance(strack_pool, detections, distances); // Calculate the distances
     //fuse_motion(distances, strack_pool, detections);        // Create the cost matrix
 
+    //******************************************************************
+    // Step 3.0: Remove duplicate new detections
+    //******************************************************************
+
+    remove_duplicates_within_set(detections,m_shmp->_fakeThreshold);
+
 
     //******************************************************************
     // Step 3.1: First association, tracked with IOU
@@ -428,14 +434,14 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     // Step 4: Remove duplicate new detections before consider them as actual
     //******************************************************************
 
-    if( activated_stracks.size()!=0)
-    {
-    	remove_duplicate_detections_custom(activated_stracks,detections,m_shmp->_fakeThreshold);
-    }
-    else
-    {
-    	remove_duplicates_within_set(detections,m_shmp->_fakeThreshold);
-    }
+    //if( activated_stracks.size()!=0)
+    //{
+    //	remove_duplicate_detections_custom(activated_stracks,detections,m_shmp->_fakeThreshold);
+    //}
+    //else
+    //{
+    //	remove_duplicates_within_set(detections,m_shmp->_fakeThreshold);
+    //}
 
 
     //******************************************************************
