@@ -322,7 +322,7 @@ public:
             kalman_filter.predict(stracks[i]->m_mean, stracks[i]->m_covariance);
             if(kalman_mode==0)
 	    {
-		update_tlwh();	
+		stracks[i]->update_tlwh();	
 	    }
 
         }
@@ -433,7 +433,7 @@ public:
      * @param update_feature  -  bool
      *        If to update this STrack's features
      */
-    void update(STrack &new_track, int frame_id, bool keep_past_metadata = true, bool update_feature = true, int kalman_mode)
+    void update(STrack &new_track, int frame_id, bool keep_past_metadata = true, bool update_feature = true, int kalman_mode = 0)
     {
         this->m_frame_id = frame_id;
         this->m_tracklet_len++;
