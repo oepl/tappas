@@ -311,7 +311,7 @@ public:
      * @param kalman_filter  -  KalmanFilter
      *        The kalman filter with which to make the predictions.
      */
-    static void multi_predict(std::vector<STrack *> &stracks, KalmanFilter &kalman_filter)
+    static void multi_predict(std::vector<STrack *> &stracks, KalmanFilter &kalman_filter,int kalman_mode)
     {
         for (uint i = 0; i < stracks.size(); i++)
         {
@@ -320,6 +320,11 @@ public:
                 stracks[i]->m_mean(7) = 0;
             }
             kalman_filter.predict(stracks[i]->m_mean, stracks[i]->m_covariance);
+            if(kalman_mode==0)
+	    {
+		update_tlwh();	
+	    }
+
         }
     }
 
@@ -348,12 +353,15 @@ public:
         auto mc = this->m_kalman_filter->initiate(xyah_box);
         this->m_mean = mc.first;
         this->m_covariance = mc.second;
-
+	
+	if(kalman_mode!=0)
+	{
 	this->m_kalman_rect.x = this->tmp_location_tlwh[0];
 	this->m_kalman_rect.y = this->tmp_location_tlwh[1];
 	this->m_kalman_rect.width =  this->tmp_location_tlwh[2];
 	this->m_kalman_rect.height = this->tmp_location_tlwh[3];
 	this->m_kalman.Init(kalman_mode,this->m_kalman_rect,stateCov_x,stateCov_Vx,stateCov_Ax,measureCov_zx);//initialize
+	}
 
         update_tlwh();
 
@@ -379,7 +387,7 @@ public:
      * @param new_id  -  bool
      *        If to update this unique id
      */
-    void re_activate(STrack &new_track, int frame_id, bool new_id, bool keep_past_metadata)
+    void re_activate(STrack &new_track, int frame_id, bool new_id, bool keep_past_metadata,int kalman_mode)
     {
         TrackerTypes::DETECTBOX xyah_box = STrack::get_detectbox_from_tlwh(new_track.m_tlwh);
 
@@ -387,12 +395,14 @@ public:
         this->m_mean = mc.first;
         this->m_covariance = mc.second;
 
-
+	if(kalman_mode!=0)
+	{
 	this->m_kalman_rect.x = this->m_tlwh[0];
 	this->m_kalman_rect.y = this->m_tlwh[1];
 	this->m_kalman_rect.width =  this->m_tlwh[2];
 	this->m_kalman_rect.height = this->m_tlwh[3];
 	this->m_kalman.Predict(this->m_kalman_rect, false);//correction
+	}
 
         update_tlwh();
 
@@ -423,7 +433,7 @@ public:
      * @param update_feature  -  bool
      *        If to update this STrack's features
      */
-    void update(STrack &new_track, int frame_id, bool keep_past_metadata = true, bool update_feature = true)
+    void update(STrack &new_track, int frame_id, bool keep_past_metadata = true, bool update_feature = true, int kalman_mode)
     {
         this->m_frame_id = frame_id;
         this->m_tracklet_len++;
@@ -433,12 +443,15 @@ public:
         auto mc = this->m_kalman_filter->update(this->m_mean, this->m_covariance, xyah_box);
         this->m_mean = mc.first;
         this->m_covariance = mc.second;
-
+	
+	if(kalman_mode!=0)
+	{
 	this->m_kalman_rect.x = this->m_tlwh[0];
 	this->m_kalman_rect.y = this->m_tlwh[1];
 	this->m_kalman_rect.width =  this->m_tlwh[2];
 	this->m_kalman_rect.height = this->m_tlwh[3];
 	this->m_kalman.Predict(this->m_kalman_rect, false);//correction
+	}
 
         update_tlwh();
 

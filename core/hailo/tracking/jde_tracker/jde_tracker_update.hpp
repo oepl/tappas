@@ -92,10 +92,10 @@ inline void JDETracker::update_matches(std::vector<std::pair<int, int>> matches,
         switch (track->get_state())
         {
         case TrackState::Tracked: // The tracklet was already tracked, so update
-            track->update(*det, this->m_frame_id, this->m_keep_past_metadata);
+            track->update(*det, this->m_frame_id, this->m_keep_past_metadata,m_shmp->_kalman_mode);
             break;
         case TrackState::Lost: // The tracklet was lost but found, so re-activate
-            track->re_activate(*det, this->m_frame_id, false, this->m_keep_past_metadata);
+            track->re_activate(*det, this->m_frame_id, false, this->m_keep_past_metadata,m_shmp->_kalman_mode);
             break;
         case TrackState::New: // The tracklet is brand new, so activate
             track->activate(&this->m_kalman_filter, this->m_frame_id,m_shmp->_kalman_mode,m_shmp->_stateCov_x,m_shmp->_stateCov_Vx,m_shmp->_stateCov_Ax,m_shmp->_measureCov_zx);
@@ -140,7 +140,7 @@ inline void JDETracker::update_unmatches(std::vector<STrack *> strack_pool,
         case TrackState::Tracked:
             if (this->m_frame_id - track->end_frame() < this->m_keep_tracked_frames)
             {
-		if (this->m_frame_id - track->end_frame() < this->m_keep_predict_frames)
+		if ((this->m_frame_id - track->end_frame() < this->m_keep_predict_frames) && m_shmp->_kalman_mode!=0)
 		{
 			std::vector<float> xyah= track->to_xyah();
 
@@ -166,7 +166,7 @@ inline void JDETracker::update_unmatches(std::vector<STrack *> strack_pool,
         case TrackState::Lost:
             if (this->m_frame_id - track->end_frame() < this->m_keep_lost_frames)
             {
-		if (this->m_frame_id - track->end_frame() < this->m_keep_predict_frames)
+		if ((this->m_frame_id - track->end_frame() < this->m_keep_predict_frames) && m_shmp->_kalman_mode!=0)
 		{
   			std::vector<float> xyah= track->to_xyah();
 
@@ -339,7 +339,7 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     detections = JDETracker::hailo_detections_to_stracks(inputs, this->m_frame_id, this->m_hailo_objects_blacklist); // Convert the new detections into STracks
 
     strack_pool = joint_strack_pointers(this->m_tracked_stracks, this->m_lost_stracks); // Pool together the tracked and lost stracks
-    STrack::multi_predict(strack_pool, this->m_kalman_filter);                          // Run Kalman Filter prediction step
+    STrack::multi_predict(strack_pool, this->m_kalman_filter,m_shmp->_kalman_mode);                          // Run Kalman Filter prediction step
 
     //******************************************************************
     // Step 2: First association, tracked with embedding
