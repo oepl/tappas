@@ -97,7 +97,7 @@ public:
 					_stateSize = 6;
 					_measurementSize = 2;
 
-					A = Mat::zeros(Size(_stateSize, _stateSize), _type);
+					A = cv::Mat::zeros(Size(_stateSize, _stateSize), _type);
 					A.at<float>(0)  = 1.0f;
 					A.at<float>(1)  = 1.0f;
 					A.at<float>(2)  = 0.5f;
@@ -111,11 +111,11 @@ public:
 					A.at<float>(29) = 1.0f;
 					A.at<float>(35) = 1.0f;
 
-					H = Mat::zeros(Size(_stateSize, _measurementSize), _type);
+					H = cv::Mat::zeros(Size(_stateSize, _measurementSize), _type);
 					H.at<float>(0) = 1.0f;
 					H.at<float>(9) = 1.0f;
 
-					P = Mat::zeros(Size(_stateSize, _stateSize), _type);
+					P = cv::Mat::zeros(Size(_stateSize, _stateSize), _type);
 					P.at<float>(0)  = 10e5f;
 					P.at<float>(7)  = 10e5f;
 					P.at<float>(14) = 10e5f;
@@ -123,7 +123,7 @@ public:
 					P.at<float>(28) = 10e5f;
 					P.at<float>(35) = 10e5f;
 
-					Q = Mat::zeros(Size(_stateSize, _stateSize), _type);
+					Q = cv::Mat::zeros(Size(_stateSize, _stateSize), _type);
 					Q.at<float>(0)  = stateCov_x;  //25.0f;
 					Q.at<float>(7)  = stateCov_Vx; //10.0f;
 					Q.at<float>(14) = stateCov_Ax; //1.0f;
@@ -131,7 +131,7 @@ public:
 					Q.at<float>(28) = stateCov_Vx; //10.0f;
 					Q.at<float>(35) = stateCov_Ax; //1.0f;
 
-					R = Mat::zeros(Size(_measurementSize, _measurementSize), _type);
+					R = cv::Mat::zeros(Size(_measurementSize, _measurementSize), _type);
 					R.at<float>(0) =  measureCov_zx; //25000.0f;
 					R.at<float>(3) =  measureCov_zx; //25000.0f;
                                         break;
