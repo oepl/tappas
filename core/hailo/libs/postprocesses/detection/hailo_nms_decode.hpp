@@ -65,7 +65,7 @@ private:
 
     void parse_bbox_to_detection_object(auto dequant_bbox, uint32_t class_index, std::vector<HailoDetection> &_objects)
     {
-	if(class_enable_list[class_index-1]==true)
+	if(yolo_shmp->class_enable_list[class_index-1]==true)
 	{
         	float confidence = CLAMP(dequant_bbox.score, 0.0f, 1.0f);
 
