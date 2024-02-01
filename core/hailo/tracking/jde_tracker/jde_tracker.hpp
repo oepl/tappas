@@ -154,6 +154,7 @@ public:
 	printf("HailoTracker:  _iou_scale_factor1, _iou_scale_factor2,_iou_scale1_enable,_iou_scale2_enable :%f,%f,%d,%d\n", m_shmp-> _iou_scale_factor1,m_shmp-> _iou_scale_factor2,(int)m_shmp->_iou_scale1_enable,(int)m_shmp->_iou_scale2_enable);
 	printf("HailoTracker: predictable region: %f\n",m_shmp->_predictable_region);
 	printf("HailoTracker: state covariance,measurement covaraiance coefficients: %d,%f,%f,%f,%f\n",m_shmp->_kalman_mode,m_shmp->_stateCov_x,m_shmp->_stateCov_Vx,m_shmp->_stateCov_Ax,m_shmp->_measureCov_zx);
+	printf("HailoTracker: pos,box_pos,vel,box,vel: %f,%f,%f.%f\n",std_weight_position, std_weight_position_box, std_weight_velocity, std_weight_velocity_box);
 
     }
 

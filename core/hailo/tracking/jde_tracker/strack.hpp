@@ -311,7 +311,7 @@ public:
      * @param kalman_filter  -  KalmanFilter
      *        The kalman filter with which to make the predictions.
      */
-    static void multi_predict(std::vector<STrack *> &stracks, KalmanFilter &kalman_filter,int kalman_mode)
+    static void multi_predict(std::vector<STrack *> &stracks, KalmanFilter &kalman_filter,int frame_id,int kalman_mode,int keep_predict_frames,float predict_limit)
     {
         for (uint i = 0; i < stracks.size(); i++)
         {
@@ -320,9 +320,20 @@ public:
                 stracks[i]->m_mean(7) = 0;
             }
             kalman_filter.predict(stracks[i]->m_mean, stracks[i]->m_covariance);
-            if(kalman_mode==0)
+
+            if((kalman_mode==0) && ((frame_id - stracks[i]->end_frame()) < keep_predict_frames))
 	    {
-		stracks[i]->update_tlwh();	
+
+		std::vector<float> xyah= stracks[i]->to_xyah();
+
+ 		if( (xyah[0] < predict_limit) 
+		    && (xyah[0] > (1-predict_limit)) 
+                    && (xyah[1] < predict_limit) 
+                    && (xyah[1] > (1-predict_limit))
+                  )
+		{
+			stracks[i]->update_tlwh();
+		}
 	    }
 
         }

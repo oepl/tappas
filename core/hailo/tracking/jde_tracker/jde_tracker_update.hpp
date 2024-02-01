@@ -339,7 +339,8 @@ inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &in
     detections = JDETracker::hailo_detections_to_stracks(inputs, this->m_frame_id, this->m_hailo_objects_blacklist); // Convert the new detections into STracks
 
     strack_pool = joint_strack_pointers(this->m_tracked_stracks, this->m_lost_stracks); // Pool together the tracked and lost stracks
-    STrack::multi_predict(strack_pool, this->m_kalman_filter,m_shmp->_kalman_mode);                          // Run Kalman Filter prediction step
+    STrack::multi_predict(strack_pool,this->m_kalman_filter,this->m_frame_id,m_shmp->_kalman_mode, this->m_keep_predict_frames,m_shmp->_predictable_region);   // Run Kalman Filter prediction step
+      
 
     //******************************************************************
     // Step 2: First association, tracked with embedding
