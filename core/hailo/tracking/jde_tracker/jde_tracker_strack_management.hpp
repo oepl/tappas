@@ -280,7 +280,7 @@ inline void JDETracker::remove_duplicate_stracks_custom(std::vector<STrack> &str
  * @param set_a -  std::vector<STrack>
  *        A set of STracks
  * @param set_b -  std::vector<STrack>
- *        A set of New detections
+ *        A set of unmatched detections
  *
  */
 
@@ -297,7 +297,7 @@ inline void JDETracker::remove_duplicate_detections_custom(std::vector<STrack> &
         {
             if (ioma_distances[i][j] < ioma_dist_thresh)
             {
-                // Mark strack in set_b for rejection
+                // Mark strack in set_b (unmatched detections) for rejection
                 if (set_a[i].m_class_id == set_b[j].m_class_id)
                 {
                     to_reject[j] = true;
@@ -339,19 +339,15 @@ inline void JDETracker::remove_duplicates_within_set(std::vector<STrack> &detect
                 // Check if either element A or element B is already marked for rejection
                 if (!to_reject[i] && !to_reject[j])
                 {
-                    // Mark the element with the higher index for rejection
-                    if (i < j)
+
+                    if (detections[i].m_class_id == detections[j].m_class_id)
                     {
-                        to_reject[j] = true;  // Mark element B for rejection
-                    }
-                    else
-                    {
-                        to_reject[i] = true;  // Mark element A for rejection
+                    	
+                        to_reject[i] = true;  // Mark older element for rejection
+
+                	break; // Break out of the inner loop once one element is marked for rejection
                     }
                 }
-
-                // Break out of the inner loop once one element is marked for rejection
-                break;
             }
         }
     }

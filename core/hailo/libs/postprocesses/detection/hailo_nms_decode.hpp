@@ -21,9 +21,10 @@
 #include<errno.h>
 #include<stdlib.h>
 
-static const int DEFAULT_MAX_BOXES = 100;
+static const int DEFAULT_MAX_BOXES = 50;
 static const float DEFAULT_THRESHOLD = 0.4;
 
+#define MVIGS_NUM_CLASSES 4
 #define YOLO_SHM_KEY 0x1222
 struct yolo_shmseg {
     float detectThresh1=0.5;
@@ -33,6 +34,7 @@ struct yolo_shmseg {
     unsigned int rectAreaThresh2=400;
     unsigned int model_input_size_x=1280;
     unsigned int model_input_size_y=768;
+    bool class_enable_list[MVIGS_NUM_CLASSES];
 };
 
 class HailoNMSDecode
@@ -63,45 +65,49 @@ private:
 
     void parse_bbox_to_detection_object(auto dequant_bbox, uint32_t class_index, std::vector<HailoDetection> &_objects)
     {
-        float confidence = CLAMP(dequant_bbox.score, 0.0f, 1.0f);
-
-        //// filter score by detection threshold if needed.
-        //if (!_filter_by_score || dequant_bbox.score > _detection_thr)
-        //{
-        //    float32_t w, h = 0.0f;
-        //    // parse width and height of the box
-        //    std::tie(w, h) = get_shape(&dequant_bbox);
-        //    // create new detection object and add it to the vector of detections
-        //    _objects.push_back(HailoDetection(HailoBBox(dequant_bbox.x_min, dequant_bbox.y_min, w, h), class_index, labels_dict[class_index], confidence));
-        //}
-
-
-	float32_t w, h = 0.0f;        
-	std::tie(w, h) = get_shape(&dequant_bbox); // parse width and height of the box   
-	unsigned int area=(unsigned int)(yolo_shmp->model_input_size_x*yolo_shmp->model_input_size_y*w*h);
-
-	if(area <= yolo_shmp->rectAreaThresh2)	// Smallest detection
+	if(class_enable_list[class_index-1]==true)
 	{
-		if(confidence  >= yolo_shmp->detectThresh3)
+        	float confidence = CLAMP(dequant_bbox.score, 0.0f, 1.0f);
+
+        	//// filter score by detection threshold if needed.
+        	//if (!_filter_by_score || dequant_bbox.score > _detection_thr)
+        	//{
+        	//    float32_t w, h = 0.0f;
+        	//    // parse width and height of the box
+        	//    std::tie(w, h) = get_shape(&dequant_bbox);
+        	//    // create new detection object and add it to the vector of detections
+        	//    _objects.push_back(HailoDetection(HailoBBox(dequant_bbox.x_min, dequant_bbox.y_min, w, h), class_index, labels_dict[class_index], confidence));
+        	//}
+
+
+		float32_t w, h = 0.0f;        
+		std::tie(w, h) = get_shape(&dequant_bbox); // parse width and height of the box   
+		unsigned int area=(unsigned int)(yolo_shmp->model_input_size_x*yolo_shmp->model_input_size_y*w*h);
+
+		if(area <= yolo_shmp->rectAreaThresh2)	// Smallest detection
 		{
-                	_objects.push_back(HailoDetection(HailoBBox(dequant_bbox.x_min, dequant_bbox.y_min, w, h), class_index, labels_dict[class_index], confidence));
+			if(confidence  >= yolo_shmp->detectThresh3)
+			{
+                		_objects.push_back(HailoDetection(HailoBBox(dequant_bbox.x_min, dequant_bbox.y_min, w, h), class_index, labels_dict[class_index], confidence));
 
+			}
 		}
-	}
-	else if( area <= yolo_shmp->rectAreaThresh1 )	// Medium size detection
-	{
-		if(confidence  >= yolo_shmp->detectThresh2)
- 		{
-               		_objects.push_back(HailoDetection(HailoBBox(dequant_bbox.x_min, dequant_bbox.y_min, w, h), class_index, labels_dict[class_index], confidence));
-
-		}
-	}
-	else
-	{
-		if(confidence  >= yolo_shmp->detectThresh1)
+		else if( area <= yolo_shmp->rectAreaThresh1 )	// Medium size detection
 		{
-	      		 _objects.push_back(HailoDetection(HailoBBox(dequant_bbox.x_min, dequant_bbox.y_min, w, h), class_index, labels_dict[class_index], confidence));
+			if(confidence  >= yolo_shmp->detectThresh2)
+ 			{
+               			_objects.push_back(HailoDetection(HailoBBox(dequant_bbox.x_min, dequant_bbox.y_min, w, h), class_index, labels_dict[class_index], confidence));
+
+			}
 		}
+		else
+		{
+			if(confidence  >= yolo_shmp->detectThresh1)
+			{
+	      		 	_objects.push_back(HailoDetection(HailoBBox(dequant_bbox.x_min, dequant_bbox.y_min, w, h), class_index, labels_dict[class_index], confidence));
+			}
+		}
+
 	}
         
     }
@@ -132,6 +138,12 @@ public:
         {
             perror("yolo post process:nms | Shared memory attach error\n");
         }
+
+	printf("HailoYoloPost: detectThresh1,detectThresh2,detectThresh3: %f,%f,%f\n",yolo_shmp->detectThresh1,yolo_shmp->detectThresh2,yolo_shmp->detectThresh3);
+	printf("HailoYoloPost: rectAreaThresh1,rectAreaThresh2 : %d,%d\n",yolo_shmp->rectAreaThresh1,yolo_shmp->rectAreaThresh2);
+	printf("HailoYoloPost: model_input_size_x,model_input_size_y : %d,%d\n",yolo_shmp->model_input_size_x,yolo_shmp->model_input_size_x);
+	printf("HailoYoloPost: class_enable_status : %d,%d,%d,%d\n",(int)yolo_shmp->class_enable_list[0],(int)yolo_shmp-> class_enable_list[1],(int)yolo_shmp->class_enable_list[2],(int)yolo_shmp-> class_enable_list[3]);
+
     };
     virtual ~HailoNMSDecode()
     {
