@@ -139,10 +139,10 @@ public:
             perror("yolo post process:nms | Shared memory attach error\n");
         }
 
-	printf("HailoYoloPost: detectThresh1,detectThresh2,detectThresh3: %f,%f,%f\n",yolo_shmp->detectThresh1,yolo_shmp->detectThresh2,yolo_shmp->detectThresh3);
-	printf("HailoYoloPost: rectAreaThresh1,rectAreaThresh2 : %d,%d\n",yolo_shmp->rectAreaThresh1,yolo_shmp->rectAreaThresh2);
-	printf("HailoYoloPost: model_input_size_x,model_input_size_y : %d,%d\n",yolo_shmp->model_input_size_x,yolo_shmp->model_input_size_x);
-	printf("HailoYoloPost: class_enable_status : %d,%d,%d,%d\n",(int)yolo_shmp->class_enable_list[0],(int)yolo_shmp-> class_enable_list[1],(int)yolo_shmp->class_enable_list[2],(int)yolo_shmp-> class_enable_list[3]);
+	//printf("HailoYoloPost: detectThresh1,detectThresh2,detectThresh3: %f,%f,%f\n",yolo_shmp->detectThresh1,yolo_shmp->detectThresh2,yolo_shmp->detectThresh3);
+	//printf("HailoYoloPost: rectAreaThresh1,rectAreaThresh2 : %d,%d\n",yolo_shmp->rectAreaThresh1,yolo_shmp->rectAreaThresh2);
+	//printf("HailoYoloPost: model_input_size_x,model_input_size_y : %d,%d\n",yolo_shmp->model_input_size_x,yolo_shmp->model_input_size_x);
+	//printf("HailoYoloPost: class_enable_status : %d,%d,%d,%d\n",(int)yolo_shmp->class_enable_list[0],(int)yolo_shmp-> class_enable_list[1],(int)yolo_shmp->class_enable_list[2],(int)yolo_shmp-> class_enable_list[3]);
 
     };
     virtual ~HailoNMSDecode()
