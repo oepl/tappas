@@ -37,10 +37,10 @@ struct yolo_shmseg {
     unsigned char class_enable_list[MVIGS_NUM_CLASSES];
 };
 
-struct yolo_shmseg HailoNMSDecode::yolo_shmp=nullpr;
-int HailoNMSDecode::yolo_shmid=-1;
-struct yolo_shmseg HailoNMSDecode::yolo_shm;
 
+static int yolo_shmid=-1;
+static struct yolo_shmseg *yolo_shmp=nullptr;
+struct yolo_shmseg yolo_shm;
 
 class HailoNMSDecode
 {
@@ -52,9 +52,6 @@ private:
     bool _filter_by_score;
     const hailo_vstream_info_t _vstream_info;
 
-    static int yolo_shmid;
-    static struct yolo_shmseg *yolo_shmp;
-    struct yolo_shmseg yolo_shm;
 
     common::hailo_bbox_float32_t dequantize_hailo_bbox(const auto *bbox_struct)
     {
