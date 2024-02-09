@@ -320,6 +320,7 @@ inline void JDETracker::update_trackmode(std::vector<STrack> &stracksa,std::vect
  */
 inline std::vector<STrack> JDETracker::update(std::vector<HailoDetectionPtr> &inputs, bool report_unconfirmed = false, bool report_lost = false)
 {
+    m_shmp->_detect_counter++;
     this->m_frame_id++;
     std::vector<STrack> detections;        // New detections in this update
     std::vector<STrack> activated_stracks; // Currently active stracks
