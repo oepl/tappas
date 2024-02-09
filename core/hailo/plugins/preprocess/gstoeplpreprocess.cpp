@@ -40,8 +40,8 @@ struct pr_shmseg {
     int dest_image_height=720; //by keeping the aspect ratio of input
     //unsigned int preprocess_count=0;
 };
-static int pr_shmid;		        //shared memory id
-static struct pr_shmseg *pr_shmp;	//shared memory data
+static int pr_shmid=-1;		        //shared memory id
+static struct pr_shmseg *pr_shmp=nullptr;	//shared memory data
 
 static struct pr_shmseg pr_shm;
 
