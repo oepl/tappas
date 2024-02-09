@@ -21,6 +21,8 @@
 #include<errno.h>
 #include<stdlib.h>
 
+#include<cstring>
+
 #define STREAM_CHANNELS 3  //input camera stream num of channels
 #define STREAM_WIDTH 1920  //input camera stream width
 #define STREAM_HEIGHT 1080 //input camera stream height
@@ -125,7 +127,7 @@ gst_oeplpreprocess_class_init(GstOeplPreprocessClass *klass)
          return ;
     }
     //copy shared memory data locally
-    memcy(&pr_shm,pr_shmp,size(struct pr_shmseg));    
+    memcpy(&pr_shm,pr_shmp,sizeof(struct pr_shmseg));    
 
     //dest mat
     destBuff=new unsigned char[pr_shm.dest_image_width*pr_shm.dest_image_height*STREAM_CHANNELS];
@@ -234,7 +236,7 @@ gst_oeplpreprocess_transform_ip(GstBaseTransform *trans,
     gst_video_info_free(info);
 
    
-    memcy(&pr_shm,pr_shmp,size(struct pr_shmseg));
+    memcpy(&pr_shm,pr_shmp,sizeof(struct pr_shmseg));  
 
     //pr_shmp->preprocess_count++;
 
