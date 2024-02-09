@@ -28,9 +28,9 @@
 
 //shared memory
 struct pr_shmseg {
-    bool bDynamicContrast=false;
-    bool bResize=false;
-    bool bCustomGamma=false;
+    unsigned char bDynamicContrast=1;
+    unsigned char bResize=0;
+    unsigned char bCustomGamma=1;
     float gamma_scale=2.0;
     int zoomcrop_x=320; //(1920-1280)/2
     int zoomcrop_y=180; //(1080-720)/2
@@ -38,10 +38,12 @@ struct pr_shmseg {
     int zoomcrop_height=720;
     int dest_image_width=1280; //by keeping the aspect ratio of input
     int dest_image_height=720; //by keeping the aspect ratio of input
-    unsigned int preprocess_count=0;
+    //unsigned int preprocess_count=0;
 };
-int pr_shmid;		        //shared memory id
-struct pr_shmseg *pr_shmp;	//shared memory data
+static int pr_shmid;		        //shared memory id
+static struct pr_shmseg *pr_shmp;	//shared memory data
+
+static struct pr_shmseg pr_shm;
 
 //intermediate Mat image
 static cv::Mat destMat;
@@ -122,10 +124,12 @@ gst_oeplpreprocess_class_init(GstOeplPreprocessClass *klass)
          perror("oepl preprocess | Shared memory attach error\n");
          return ;
     }
-    
+    //copy shared memory data locally
+    memcy(&pr_shm,pr_shmp,size(struct pr_shmseg));    
+
     //dest mat
-    destBuff=new unsigned char[pr_shmp->dest_image_width*pr_shmp->dest_image_height*STREAM_CHANNELS];
-    destMat=cv::Mat(cv::Size(pr_shmp->dest_image_width,pr_shmp->dest_image_height),CV_8UC3,destBuff);
+    destBuff=new unsigned char[pr_shm.dest_image_width*pr_shm.dest_image_height*STREAM_CHANNELS];
+    destMat=cv::Mat(cv::Size(pr_shm.dest_image_width,pr_shm.dest_image_height),CV_8UC3,destBuff);
 
     //Gamma Correction LUT Image
     pGamma8BitImage = cv::Mat(cv::Size(256, 1), CV_8UC3, GammaTable8Bit);
@@ -137,7 +141,7 @@ gst_oeplpreprocess_class_init(GstOeplPreprocessClass *klass)
     }
 
     //preprocess count
-    pr_shmp->preprocess_count=0;
+    //pr_shmp->preprocess_count=0;
         
     gobject_class->dispose = gst_oeplpreprocess_dispose;
     gobject_class->finalize = gst_oeplpreprocess_finalize;
@@ -229,22 +233,25 @@ gst_oeplpreprocess_transform_ip(GstBaseTransform *trans,
     mat = get_mat(info, &map);
     gst_video_info_free(info);
 
-    pr_shmp->preprocess_count++;
+   
+    memcy(&pr_shm,pr_shmp,size(struct pr_shmseg));
+
+    //pr_shmp->preprocess_count++;
 
     /*SCALE and ZOOM  */ 
-    if(pr_shmp->bResize!=true) 
+    if(pr_shm.bResize==0) 
     {
           //scale mode
-          cv::resize(mat,destMat,cv::Size(pr_shmp->dest_image_width,pr_shmp->dest_image_height));  //1920*1080-->640*360
+          cv::resize(mat,destMat,cv::Size(pr_shm.dest_image_width,pr_shm.dest_image_height));  //1920*1080-->640*360
     }
-    else 
-    {
-          //zoom mode
-         cv::resize(mat(cv::Rect(pr_shmp->zoomcrop_x,pr_shmp->zoomcrop_y,pr_shmp->zoomcrop_width,pr_shmp->zoomcrop_height)),destMat,cv::Size(pr_shmp->dest_image_width,pr_shmp->				dest_image_height)); //middle 1280*1080 of 1920*1080-->640*360
-    }
+   // else 
+   // {
+   //       //zoom mode
+   //      cv::resize(mat(cv::Rect(pr_shmp->zoomcrop_x,pr_shmp->zoomcrop_y,pr_shmp->zoomcrop_width,pr_shmp->zoomcrop_height)),destMat,cv::Size(pr_shmp->dest_image_width,pr_shmp->				dest_image_height)); //middle 1280*1080 of 1920*1080-->640*360
+   // }
 
     /*CONTRAST AND BRIGHTNESS */
-    if (pr_shmp->bDynamicContrast == true)
+    if (pr_shm.bDynamicContrast == 1)
     {
 	/*contrast correction:*/
 	{
@@ -312,7 +319,7 @@ gst_oeplpreprocess_transform_ip(GstBaseTransform *trans,
 		}
 		else
 		{
-			newGammaValue = 1 + pr_shmp->gamma_scale * (0.5 - measured_brightness);
+			newGammaValue = 1 + pr_shm.gamma_scale * (0.5 - measured_brightness);
 		}
 
 		//find change in gamma value
@@ -325,7 +332,7 @@ gst_oeplpreprocess_transform_ip(GstBaseTransform *trans,
 			for (int pixelIndx = 0; pixelIndx < 256; pixelIndx++)
 			{
 				double value=0;
-				if(pr_shmp->bCustomGamma==true)
+				if(pr_shm.bCustomGamma==1)
 				{
 				    value = (maxIntensity*(1 - pow( (maxIntensity - pixelIndx) / (double)maxIntensity, currentGammaValue)));
 				}
@@ -345,8 +352,8 @@ gst_oeplpreprocess_transform_ip(GstBaseTransform *trans,
    }
 
     /*update final image*/
-    mat(cv::Rect(0,pr_shmp->dest_image_height,pr_shmp->dest_image_width,(STREAM_HEIGHT)-pr_shmp->dest_image_height)).setTo(0); //set 640*280 portion of 640*640(model input)to 0
-    destMat.copyTo(mat(cv::Rect(0,0,pr_shmp->dest_image_width,pr_shmp->dest_image_height))); //copy 640*360 to tl 640*360 of 1920*1080
+    mat(cv::Rect(0,pr_shm.dest_image_height,pr_shm.dest_image_width,(STREAM_HEIGHT)-pr_shm.dest_image_height)).setTo(0); //set 640*280 portion of 640*640(model input)to 0
+    destMat.copyTo(mat(cv::Rect(0,0,pr_shm.dest_image_width,pr_shm.dest_image_height))); //copy 640*360 to tl 640*360 of 1920*1080
 
     if(status==GST_FLOW_ERROR)
     {
