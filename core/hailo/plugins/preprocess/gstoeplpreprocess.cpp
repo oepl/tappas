@@ -21,7 +21,9 @@
 #include<errno.h>
 #include<stdlib.h>
 
+
 #include<cstring>
+#include<unistd.h>
 
 #define STREAM_CHANNELS 3  //input camera stream num of channels
 #define STREAM_WIDTH 1920  //input camera stream width
@@ -241,20 +243,21 @@ gst_oeplpreprocess_transform_ip(GstBaseTransform *trans,
     //pr_shmp->preprocess_count++;
 
     /*SCALE and ZOOM  */ 
-    //if(pr_shm.bResize==0) 
-    //{
-    //      //scale mode
-    //      cv::resize(mat,destMat,cv::Size(pr_shm.dest_image_width,pr_shm.dest_image_height));  //1920*1080-->640*360
-    //}
-    //else 
+    if(pr_shm.bResize==0) 
+    {
+          //scale mode
+          cv::resize(mat,destMat,cv::Size(pr_shm.dest_image_width,pr_shm.dest_image_height));  //1920*1080-->640*360
+    }
+    else 
     {
           //zoom mode
 	mat(cv::Rect(pr_shm.zoomcrop_x,pr_shm.zoomcrop_y,pr_shm.zoomcrop_width,pr_shm.zoomcrop_height)).copyTo(destMat);
-        // cv::resize(mat(cv::Rect(pr_shmp->zoomcrop_x,pr_shmp->zoomcrop_y,pr_shmp->zoomcrop_width,pr_shmp->zoomcrop_height)),destMat,cv::Size(pr_shmp->dest_image_width,pr_shmp->				dest_image_height)); //middle 1280*1080 of 1920*1080-->640*360
+        // cv::resize(mat(cv::Rect(pr_shmp->zoomcrop_x,pr_shmp->zoomcrop_y,pr_shmp->zoomcrop_width,pr_shmp->zoomcrop_height)),destMat,cv::Size(pr_shmp->dest_image_width,pr_shmp->dest_image_height)); //middle 1280*1080 of 1920*1080-->640*360
+    	usleep(20000); //20ms
     }
 
     /*CONTRAST AND BRIGHTNESS */
-    //if (pr_shm.bDynamicContrast == 1)
+    if (pr_shm.bDynamicContrast == 1)
     {
 	/*contrast correction:*/
 	{
@@ -352,6 +355,10 @@ gst_oeplpreprocess_transform_ip(GstBaseTransform *trans,
 		//apply gamma
 		cv::LUT(destMat, pGamma8BitImage, destMat);
 	}
+   }
+   else
+   {
+	usleep(20000);//20ms
    }
 
     /*update final image*/
