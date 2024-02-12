@@ -41,6 +41,7 @@ struct yolo_shmseg {
 static int yolo_shmid=-1;
 static struct yolo_shmseg *yolo_shmp=nullptr;
 struct yolo_shmseg yolo_shm;
+static bool bShmInitialized=false;
 
 class HailoNMSDecode
 {
@@ -130,6 +131,8 @@ public:
         if (HAILO_FORMAT_ORDER_HAILO_NMS != _vstream_info.format.order)
             throw std::invalid_argument("Output tensor " + _nms_output_tensor->name() + " is not an NMS type");
 		
+	if(bShmInitialized==false)
+	{
 	//Shared memory yolo postprocess
         yolo_shmid = shmget(YOLO_SHM_KEY, sizeof(struct yolo_shmseg), 0644|IPC_CREAT); //create shared memory
        	if (yolo_shmid == -1) 
@@ -141,6 +144,9 @@ public:
         {
             perror("yolo post process:nms | Shared memory attach error\n");
         }
+	bShmInitialized=true;
+	printf("Pos process SHM attached\n");
+	}
 	
 	//copy shared memory data locally
 	memcpy(&yolo_shm, yolo_shmp,sizeof(struct yolo_shmseg));
