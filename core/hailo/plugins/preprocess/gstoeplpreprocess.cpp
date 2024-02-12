@@ -30,16 +30,16 @@
 
 //shared memory
 struct pr_shmseg {
-    unsigned char bDynamicContrast=1;
-    unsigned char bResize=0;
-    unsigned char bCustomGamma=1;
-    float gamma_scale=2.0;
-    int zoomcrop_x=320; //(1920-1280)/2
-    int zoomcrop_y=180; //(1080-720)/2
-    int zoomcrop_width=1280;
-    int zoomcrop_height=720;
-    int dest_image_width=1280; //by keeping the aspect ratio of input
-    int dest_image_height=720; //by keeping the aspect ratio of input
+    unsigned char bDynamicContrast; //1
+    unsigned char bResize;
+    unsigned char bCustomGamma; //1
+    float gamma_scale; //2.0
+    int zoomcrop_x;//320 //(1920-1280)/2
+    int zoomcrop_y;//180 //(1080-720)/2
+    int zoomcrop_width;//1280
+    int zoomcrop_height;//720
+    int dest_image_width;//1280 //by keeping the aspect ratio of input
+    int dest_image_height;//720; //by keeping the aspect ratio of input
     //unsigned int preprocess_count=0;
 };
 static int pr_shmid=-1;		        //shared memory id
@@ -241,12 +241,12 @@ gst_oeplpreprocess_transform_ip(GstBaseTransform *trans,
     //pr_shmp->preprocess_count++;
 
     /*SCALE and ZOOM  */ 
-    if(pr_shm.bResize==0) 
-    {
-          //scale mode
-          cv::resize(mat,destMat,cv::Size(pr_shm.dest_image_width,pr_shm.dest_image_height));  //1920*1080-->640*360
-    }
-    else 
+    //if(pr_shm.bResize==0) 
+    //{
+    //      //scale mode
+    //      cv::resize(mat,destMat,cv::Size(pr_shm.dest_image_width,pr_shm.dest_image_height));  //1920*1080-->640*360
+    //}
+    //else 
     {
           //zoom mode
 	mat(cv::Rect(pr_shm.zoomcrop_x,pr_shm.zoomcrop_y,pr_shm.zoomcrop_width,pr_shm.zoomcrop_height)).copyTo(destMat);
@@ -254,7 +254,7 @@ gst_oeplpreprocess_transform_ip(GstBaseTransform *trans,
     }
 
     /*CONTRAST AND BRIGHTNESS */
-    if (pr_shm.bDynamicContrast == 1)
+    //if (pr_shm.bDynamicContrast == 1)
     {
 	/*contrast correction:*/
 	{
