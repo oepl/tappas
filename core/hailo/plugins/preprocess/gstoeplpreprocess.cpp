@@ -151,7 +151,7 @@ gst_oeplpreprocess_class_init(GstOeplPreprocessClass *klass)
     base_transform_class->stop = GST_DEBUG_FUNCPTR(gst_oeplpreprocess_stop);
     base_transform_class->transform_ip =
         GST_DEBUG_FUNCPTR(gst_oeplpreprocess_transform_ip);
-    printf("init preprocess zoom-scale\n");
+    printf("init oepl-preprocess 12-02-24 : 11:35\n");
 }
 
 static void
@@ -249,12 +249,12 @@ gst_oeplpreprocess_transform_ip(GstBaseTransform *trans,
     else 
     {
           //zoom mode
-	mat(cv::Rect(pr_shmp->zoomcrop_x,pr_shmp->zoomcrop_y,pr_shmp->zoomcrop_width,pr_shmp->zoomcrop_height)).copyTo(destMat);
+	mat(cv::Rect(pr_shm.zoomcrop_x,pr_shm.zoomcrop_y,pr_shm.zoomcrop_width,pr_shm.zoomcrop_height)).copyTo(destMat);
         // cv::resize(mat(cv::Rect(pr_shmp->zoomcrop_x,pr_shmp->zoomcrop_y,pr_shmp->zoomcrop_width,pr_shmp->zoomcrop_height)),destMat,cv::Size(pr_shmp->dest_image_width,pr_shmp->				dest_image_height)); //middle 1280*1080 of 1920*1080-->640*360
     }
 
     /*CONTRAST AND BRIGHTNESS */
-    //if (pr_shm.bDynamicContrast == 1)
+    if (pr_shm.bDynamicContrast == 1)
     {
 	/*contrast correction:*/
 	{
