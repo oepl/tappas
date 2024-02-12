@@ -160,10 +160,10 @@ public:
     virtual ~HailoNMSDecode()
     {
 	//detach shared memory
-        if (shmdt(yolo_shmp) == -1) 
-        {
-            perror("yolo post process:nms | Shared memory detach error\n");
-        }
+        //if (shmdt(yolo_shmp) == -1) 
+        //{
+        //    perror("yolo post process:nms | Shared memory detach error\n");
+        //}
     }
 
     template <typename T, typename BBoxType>
