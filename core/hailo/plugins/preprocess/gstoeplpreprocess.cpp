@@ -42,7 +42,9 @@ struct pr_shmseg {
     int zoomcrop_height;//720
     int dest_image_width;//1280 //by keeping the aspect ratio of input
     int dest_image_height;//720; //by keeping the aspect ratio of input
-    //unsigned int preprocess_count=0;
+    unsigned int _sleep_zoom;
+    unsigned int _sleep_dynamicContrast;
+    unsigned int preprocess_count=0;
 };
 static int pr_shmid=-1;		        //shared memory id
 static struct pr_shmseg *pr_shmp=nullptr;	//shared memory data
@@ -151,9 +153,12 @@ gst_oeplpreprocess_class_init(GstOeplPreprocessClass *klass)
     gobject_class->finalize = gst_oeplpreprocess_finalize;
     base_transform_class->start = GST_DEBUG_FUNCPTR(gst_oeplpreprocess_start);
     base_transform_class->stop = GST_DEBUG_FUNCPTR(gst_oeplpreprocess_stop);
-    base_transform_class->transform_ip =
-        GST_DEBUG_FUNCPTR(gst_oeplpreprocess_transform_ip);
-    printf("init oepl-preprocess 12-02-24 : 11:35\n");
+    base_transform_class->transform_ip = GST_DEBUG_FUNCPTR(gst_oeplpreprocess_transform_ip);
+
+    printf("HAILO Preprocess :- bDynamicContrast = %d, bResize = %d, bCustomGamma = %d,gamma_scale = %f : \n",pr_shm.bDynamicContrast,pr_shm.bResize,pr_shm.bCustomGamma,pr_shm.gamma_scale);
+    printf("HAILO Preprocess :- zoomcrop_x = %d, zoomcrop_y = %d, zoomcrop_width = %d, zoomcrop_height = %d  \n",pr_shm.zoomcrop_x,pr_shm.zoomcrop_y,pr_shm.zoomcrop_width,pr_shm.zoomcrop_height);
+    printf("HAILO Preprocess :- _sleep_zoom = %d, _sleep_dynamicContrast = %d \n",pr_shm._sleep_zoom,pr_shm._sleep_dynamicContrast);
+
 }
 
 static void
@@ -253,7 +258,7 @@ gst_oeplpreprocess_transform_ip(GstBaseTransform *trans,
           //zoom mode
 	mat(cv::Rect(pr_shm.zoomcrop_x,pr_shm.zoomcrop_y,pr_shm.zoomcrop_width,pr_shm.zoomcrop_height)).copyTo(destMat);
         // cv::resize(mat(cv::Rect(pr_shmp->zoomcrop_x,pr_shmp->zoomcrop_y,pr_shmp->zoomcrop_width,pr_shmp->zoomcrop_height)),destMat,cv::Size(pr_shmp->dest_image_width,pr_shmp->dest_image_height)); //middle 1280*1080 of 1920*1080-->640*360
-    	usleep(20000); //20ms
+    	usleep(pr_shm._sleep_zoom); //20ms
     }
 
     /*CONTRAST AND BRIGHTNESS */
@@ -358,7 +363,7 @@ gst_oeplpreprocess_transform_ip(GstBaseTransform *trans,
    }
    else
    {
-	usleep(20000);//20ms
+	usleep(pr_shm._sleep_dynamicContrast);//20ms
    }
 
     /*update final image*/
