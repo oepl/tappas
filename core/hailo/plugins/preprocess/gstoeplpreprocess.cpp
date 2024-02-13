@@ -245,13 +245,13 @@ gst_oeplpreprocess_transform_ip(GstBaseTransform *trans,
    
     memcpy(&pr_shm,pr_shmp,sizeof(struct pr_shmseg));  
 
-    //pr_shmp->preprocess_count++;
+    pr_shmp->preprocess_count++;
 
     /*SCALE and ZOOM  */ 
     if(pr_shm.bResize==0) 
     {
           //scale mode
-          cv::resize(mat,destMat,cv::Size(pr_shm.dest_image_width,pr_shm.dest_image_height));  //1920*1080-->640*360
+          cv::resize(mat,destMat,cv::Size(pr_shm.dest_image_width,pr_shm.dest_image_height), 0, 0, cv::INTER_AREA);  //1920*1080-->640*360
     }
     else 
     {
